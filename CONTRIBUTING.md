@@ -1,8 +1,8 @@
 # Contributing to Reasonhound
 
-Thanks for your interest! Reasonhound is in **pre-alpha** — right now the repo
-holds documentation and design only. Contributions will open up once the code
-skeleton lands, but early feedback on the design is very welcome.
+Thanks for your interest! Reasonhound is in **pre-alpha** — the CLI skeleton
+exists, but the scan pipeline (`recon`, `static`, `brain`, `dynamic`, `report`)
+is still to be built. Early feedback on the design is very welcome.
 
 ## Ways to help right now
 
@@ -11,14 +11,16 @@ skeleton lands, but early feedback on the design is very welcome.
   cover.
 - Propose additional BYOK providers.
 
-## Development setup (once code exists)
+## Development setup
 
 ```bash
 git clone https://github.com/Yigtwxx/Reasonhound.git
 cd Reasonhound
-python -m venv .venv
+uv venv --python 3.11            # or: python3.11 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"       # or: pip install -e ".[dev]"
+
+ruff check . && ruff format --check . && pytest
 ```
 
 ## Ground rules

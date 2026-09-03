@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <strong>Status:</strong> 🚧 Pre-alpha — documentation & design only. No code yet.
+  <strong>Status:</strong> 🚧 Pre-alpha — CLI skeleton only; the scan pipeline is not implemented yet.
 </p>
 
 ---
@@ -27,24 +27,47 @@ Every finding ships with the reasoning behind it. It's not a black box.
 
 ## How it works
 
+The terminal is the UI. A guided wizard sets up the run, then a live monitor
+shows the scan as it happens:
+
 ```
 $ reasonhound scan
 
-? Which AI should do the reasoning?   › Anthropic (Claude) / OpenAI / Google Gemini / Ollama (local)
-? How should I scan?                  › Code only (static)  /  Bring the app up end-to-end (dynamic)
+[0] Preflight     git ✓  Docker ✓  ANTHROPIC_API_KEY ✓  framework: FastAPI
+[1] Brain         › Anthropic (Claude) / OpenAI / Google Gemini / Ollama (local)
+[2] Authorization ▢ I own this system or am explicitly authorized to test it   (required)
+[3] Scope         whole repo · ~142 files · redaction ON · budget ≤ $5.00
+[4] Plan          recon → static hunters → verify …   [enter to start]
 
-⚙  Deep scan running…  [senior reasoning loop]
-✔  Report written → ./REASONHOUND-FINDINGS.md
+┌ Reasonhound ─ scanning ./my-app ───────────── ⏱ 02:14 ─ $0.38 / $5.00 ┐
+│ ▸ lead-strategist   planning next     │ ● CONFIRMED  SQLi  /api/search  │
+│   ├ injection-hunter  tracing sink    │ ○ suspected  IDOR  /users/:id   │
+│   └ red-verifier      probing…        │ 12 confirmed · 8 susp · 20 rej  │
+│ SECURITY egress: LOCKED ✓  redaction: ON ✓  probes: 14 (harmless)      │
+│ [p]ause  [k]ill agent  [K]ill all  [q]uit                              │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-Two phases, run in order:
+Under the hood, a single **orchestrator** plans the scan and dispatches a library
+of **~35 specialized subagents** — each with its own narrow toolkit. Two phases
+run in order:
 
 | Phase | What it does |
 | --- | --- |
-| **1 · Static** | Reads the source, maps frameworks, endpoints and input points, traces data flow, and produces vulnerability hypotheses. |
-| **2 · Dynamic** *(optional)* | Brings the target app up in **Docker** (or locally if Docker is absent) and confirms hypotheses with **harmless** probes — never destructive payloads by default. |
+| **1 · Static** | Recon + per-vuln-class hunters read the source with a hybrid tree-sitter + LLM engine, trace data flow, and produce hypotheses. A frontend/JS deep phase resolves source maps, inspects the dependency supply chain, and (optionally) detonates client code in a headless browser. |
+| **2 · Dynamic** *(optional)* | Brings the target app up in an **isolated, egress-locked Docker network**, or **attaches to an app you already run on localhost** (`--target URL`, no Docker needed), and confirms hypotheses with **harmless** probes — never destructive payloads by default. |
 
-Findings are collected, ranked by severity, and written to `REASONHOUND-FINDINGS.md` in your project root.
+Before a finding is trusted it goes through **double-voting**: one agent tries to
+prove it, another tries to disprove it, and an arbiter assigns a status
+(confirmed / suspected / rejected) with a confidence and CVSS score.
+
+Findings are written into a **`Reasonhound/`** folder in your project root — one
+Markdown file per finding, plus an `INDEX.md` and an `audit.log` of every probe
+sent. Re-running **smart-merges**: existing findings are updated, new ones added,
+and findings that no longer reproduce are marked resolved.
+
+See [`docs/DESIGN.md`](docs/DESIGN.md) for the full architecture and the subagent
+library.
 
 ## Bring Your Own Key (BYOK)
 
@@ -59,25 +82,47 @@ Reasonhound ships **no model and no API key**. On first run it asks which provid
 
 Your key stays on your machine, is read only from the environment, and is **never logged or written to disk**.
 
-## Install (planned)
+## Install
+
+Not on PyPI yet. Install from source (Python 3.11+):
 
 ```bash
-pip install reasonhound
+git clone https://github.com/Yigtwxx/Reasonhound.git
+cd Reasonhound
+uv venv --python 3.11 && uv pip install -e ".[dev]"   # or: pip install -e ".[dev]"
+reasonhound --help
 ```
+
+Once released, `pipx` is the recommended way (isolated env, global `reasonhound`
+command). Heavy dependencies are optional extras, so the base install stays light:
+
+```bash
+pipx install reasonhound                 # base: static phase + live TUI
+pipx install "reasonhound[dynamic]"      # + Docker bring-up for Phase 2
+pipx install "reasonhound[frontend]"     # + headless browser (DOM XSS, bundle analysis)
+pipx install "reasonhound[all]"          # everything
+```
+
+The base CLI warns and points you at the right extra when a phase needs it.
 
 Cross-platform by design — pure Python, developed on macOS, runs on **macOS, Windows, and Linux**. Docker is optional and only used for the dynamic phase.
 
-## Usage (planned)
+## Usage
+
+The CLI below works today; it validates flags, checks your key is present, asks you to
+confirm you are authorized to test the target, and persists your non-secret choices to
+`.reasonhound.toml`. The actual scan pipeline lands in the next milestones.
 
 ```bash
-# Interactive: asks provider + scan mode
+# Interactive: asks provider + scan mode, then the authorization confirmation
 reasonhound scan
 
-# Non-interactive
-reasonhound scan ./my-app --provider anthropic --mode static
-reasonhound scan ./my-app --provider ollama  --mode dynamic --budget 40
+# Non-interactive (CI): --authorized replaces the prompt and is never persisted
+reasonhound scan ./my-app --provider anthropic --mode static --authorized
+reasonhound scan ./my-app --provider ollama  --mode dynamic --budget 40 --authorized
 
-# Safe by default; aggressive exploitation is opt-in and gated behind confirmation
+# Safe by default; aggressive exploitation is opt-in and always confirmed
+# interactively (no flag, including --yes, can skip that prompt)
 reasonhound scan ./my-app --mode dynamic --aggressive
 ```
 
@@ -91,13 +136,16 @@ Reasonhound is a **defensive** tool for testing systems **you own or are explici
 
 ## Roadmap
 
-- [ ] CLI skeleton & interactive prompts
-- [ ] BYOK provider abstraction (Anthropic / OpenAI / Gemini / Ollama)
-- [ ] `recon`: framework & endpoint discovery
-- [ ] `static`: data-flow hypothesis engine
-- [ ] `brain`: senior reasoning loop (tool-use agent)
-- [ ] `dynamic`: Docker bring-up + safe probing
-- [ ] `report`: Markdown findings writer
+- [x] CLI skeleton & interactive prompts
+- [ ] BYOK provider abstraction — four `httpx` adapters (Anthropic / OpenAI / Gemini / Ollama)
+- [ ] `security`: egress redaction + prompt-injection defense (data-fencing, tool allowlists)
+- [ ] `orchestrator` + `agents/`: the subagent library (~35 agents, own toolkits)
+- [ ] `static`: hybrid tree-sitter + LLM data-flow / hypothesis engine
+- [ ] `verify`: double-voting (prove / disprove / arbitrate) + reproducible PoC
+- [ ] `dynamic`: egress-locked Docker bring-up + safe probing
+- [ ] Frontend/JS deep phase: source maps, supply-chain, headless-browser detonation
+- [ ] `tui`: Textual live monitor (agent tree, findings feed, budget, kill-switch)
+- [ ] `report`: `Reasonhound/` folder writer (per-finding Markdown, smart merge)
 - [ ] Deliberately-vulnerable sample app for end-to-end tests
 
 ## Contributing
