@@ -57,10 +57,10 @@ dev = [
 reasonhound = "reasonhound.cli.app:main"
 
 [project.urls]
-Homepage = "https://github.com/Yigtwxx/Reasonhound"
-Repository = "https://github.com/Yigtwxx/Reasonhound"
-Issues = "https://github.com/Yigtwxx/Reasonhound/issues"
-Changelog = "https://github.com/Yigtwxx/Reasonhound/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Yigtwxx/reasonhound"
+Repository = "https://github.com/Yigtwxx/reasonhound"
+Issues = "https://github.com/Yigtwxx/reasonhound/issues"
+Changelog = "https://github.com/Yigtwxx/reasonhound/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/reasonhound"]

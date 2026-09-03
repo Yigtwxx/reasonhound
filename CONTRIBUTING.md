@@ -14,7 +14,7 @@ is still to be built. Early feedback on the design is very welcome.
 ## Development setup
 
 ```bash
-git clone https://github.com/Yigtwxx/Reasonhound.git
+git clone https://github.com/Yigtwxx/reasonhound.git
 cd Reasonhound
 uv venv --python 3.11            # or: python3.11 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate

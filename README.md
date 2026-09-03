@@ -87,7 +87,7 @@ Your key stays on your machine, is read only from the environment, and is **neve
 Not on PyPI yet. Install from source (Python 3.11+):
 
 ```bash
-git clone https://github.com/Yigtwxx/Reasonhound.git
+git clone https://github.com/Yigtwxx/reasonhound.git
 cd Reasonhound
 uv venv --python 3.11 && uv pip install -e ".[dev]"   # or: pip install -e ".[dev]"
 reasonhound --help

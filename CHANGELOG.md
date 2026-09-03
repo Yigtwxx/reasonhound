@@ -55,5 +55,5 @@ _Nothing yet._
 
 _The scan pipeline itself is not implemented yet; only the CLI shell exists._
 
-[Unreleased]: https://github.com/Yigtwxx/Reasonhound/compare/v0.0.1...HEAD
-[0.0.1]: https://github.com/Yigtwxx/Reasonhound/releases/tag/v0.0.1
+[Unreleased]: https://github.com/Yigtwxx/reasonhound/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/Yigtwxx/reasonhound/releases/tag/v0.0.1

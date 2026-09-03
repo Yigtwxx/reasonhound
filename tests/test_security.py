@@ -225,7 +225,7 @@ def test_redact_is_linear_on_long_runs_without_at() -> None:
 def test_entropy_pass_keeps_routes_urls_and_paths() -> None:
     for text in (
         'router.get("/admin/reports/export-monthly-summary", handler)',
-        "https://github.com/Yigtwxx/Reasonhound/blob/main/CHANGELOG.md",
+        "https://github.com/Yigtwxx/reasonhound/blob/main/CHANGELOG.md",
         "node_modules/@babel/plugin-transform-runtime/lib/index.js",
         "http://localhost:8000/api/v1/users/123/reports/export",
     ):
