@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "libre caslon display",
+        "createdAt": "2026-09-03T08:59:40.280Z",
+        "reason": "User confirmed Libre Caslon Display is the intentional display face for the Reasonhound landing page"
+      }
+    ]
+  }
+}

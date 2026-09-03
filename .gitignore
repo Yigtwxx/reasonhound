@@ -56,3 +56,7 @@ htmlcov/
 *.swp
 .DS_Store
 Thumbs.db
+
+# impeccable design hook — keep shared config.json, ignore per-machine cache/local
+.impeccable/config.local.json
+.impeccable/hook.cache.json
