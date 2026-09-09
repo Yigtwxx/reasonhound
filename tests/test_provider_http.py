@@ -230,6 +230,14 @@ def test_owned_client_is_closed() -> None:
     assert provider._client.is_closed
 
 
+def test_close_is_idempotent() -> None:
+    """The orchestrator may close a provider it already closed on a kill-switch."""
+    provider = AnthropicProvider(api_key="k", model="claude-opus-5")
+    provider.close()
+    provider.close()
+    assert provider._client.is_closed
+
+
 def test_context_manager_closes_an_owned_client() -> None:
     with AnthropicProvider(api_key="k", model="claude-opus-5") as provider:
         pass

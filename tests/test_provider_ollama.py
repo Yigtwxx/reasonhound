@@ -91,6 +91,14 @@ def test_stream_flag_is_explicit_for_a_blocking_call(capture, no_api_keys: None)
     assert _body(requests[0])["stream"] is False
 
 
+def test_system_prompt_leads_the_message_list(capture, no_api_keys: None) -> None:
+    client, requests = capture(httpx.Response(200, json=COMPLETION_BODY))
+    _provider(client).complete([Message(role=Role.USER, content="hi")], system="be careful")
+
+    messages = _body(requests[0])["messages"]
+    assert messages[0] == {"role": "system", "content": "be careful"}
+
+
 def test_options_carry_limits(capture, no_api_keys: None) -> None:
     client, requests = capture(httpx.Response(200, json=COMPLETION_BODY))
     provider = _provider(client)
