@@ -98,12 +98,15 @@ command). Heavy dependencies are optional extras, so the base install stays ligh
 
 ```bash
 pipx install reasonhound                 # base: static phase + live TUI
-pipx install "reasonhound[dynamic]"      # + Docker bring-up for Phase 2
+pipx install "reasonhound[dynamic]"      # + Docker bring-up for the dynamic phase
 pipx install "reasonhound[frontend]"     # + headless browser (DOM XSS, bundle analysis)
 pipx install "reasonhound[all]"          # everything
 ```
 
 The base CLI warns and points you at the right extra when a phase needs it.
+
+Keys are read from the environment only (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+`GEMINI_API_KEY`); Ollama needs none and honours `OLLAMA_HOST`.
 
 Cross-platform by design — pure Python, developed on macOS, runs on **macOS, Windows, and Linux**. Docker is optional and only used for the dynamic phase.
 
@@ -121,6 +124,10 @@ reasonhound scan
 reasonhound scan ./my-app --provider anthropic --mode static --authorized
 reasonhound scan ./my-app --provider ollama  --mode dynamic --budget 40 --authorized
 
+# Each provider has a sensible default model; override it with --model
+reasonhound scan ./my-app --provider anthropic --model claude-haiku-4-5 --authorized
+reasonhound scan ./my-app --provider ollama    --model llama3.2 --authorized
+
 # Safe by default; aggressive exploitation is opt-in and always confirmed
 # interactively (no flag, including --yes, can skip that prompt)
 reasonhound scan ./my-app --mode dynamic --aggressive
@@ -137,8 +144,8 @@ Reasonhound is a **defensive** tool for testing systems **you own or are explici
 ## Roadmap
 
 - [x] CLI skeleton & interactive prompts
-- [ ] BYOK provider abstraction — four `httpx` adapters (Anthropic / OpenAI / Gemini / Ollama)
-- [ ] `security`: egress redaction + prompt-injection defense (data-fencing, tool allowlists)
+- [x] BYOK provider abstraction — four `httpx` adapters (Anthropic / OpenAI / Gemini / Ollama)
+- [x] `security`: egress redaction + prompt-injection defense (data-fencing, tool allowlists)
 - [ ] `orchestrator` + `agents/`: the subagent library (~35 agents, own toolkits)
 - [ ] `static`: hybrid tree-sitter + LLM data-flow / hypothesis engine
 - [ ] `verify`: double-voting (prove / disprove / arbitrate) + reproducible PoC

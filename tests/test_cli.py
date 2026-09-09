@@ -312,3 +312,75 @@ def test_non_interactive_uses_saved_provider_and_mode(
     assert result.exit_code == 0, result.output
     assert "Ollama" in result.output
     assert "dynamic" in result.output.lower()
+
+
+# --- model selection ---------------------------------------------------------
+
+
+def test_model_flag_is_shown_and_persisted(
+    runner: CliRunner, project: Path, no_api_keys: None
+) -> None:
+    result = runner.invoke(
+        app,
+        ["scan", str(project), "-p", "ollama", "-m", "static", "--authorized", "--model", "phi4"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Model:    phi4" in result.output
+    saved = load_config(project)
+    assert saved is not None
+    assert saved.model == "phi4"
+
+
+def test_default_model_is_used_when_none_given(
+    runner: CliRunner, project: Path, no_api_keys: None
+) -> None:
+    from reasonhound.providers import default_model
+
+    result = runner.invoke(
+        app, ["scan", str(project), "-p", "ollama", "-m", "static", "--authorized"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert f"Model:    {default_model(Provider.OLLAMA)}" in result.output
+
+
+def test_saved_model_is_reused_for_the_same_provider(
+    runner: CliRunner, project: Path, no_api_keys: None
+) -> None:
+    first = runner.invoke(
+        app,
+        ["scan", str(project), "-p", "ollama", "-m", "static", "--authorized", "--model", "phi4"],
+    )
+    assert first.exit_code == 0, first.output
+
+    result = runner.invoke(
+        app, ["scan", str(project), "-p", "ollama", "-m", "static", "--authorized"]
+    )
+
+    assert "Model:    phi4" in result.output
+
+
+def test_saved_model_is_ignored_after_a_provider_switch(
+    runner: CliRunner, project: Path, no_api_keys: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A Claude model id sent to OpenAI would 404 with a confusing message."""
+    from reasonhound.providers import default_model
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    first = runner.invoke(
+        app,
+        [
+            *["scan", str(project), "-p", "anthropic", "-m", "static", "--authorized"],
+            *["--model", "claude-haiku-4-5"],
+        ],
+    )
+    assert first.exit_code == 0, first.output
+
+    result = runner.invoke(
+        app, ["scan", str(project), "-p", "openai", "-m", "static", "--authorized"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert f"Model:    {default_model(Provider.OPENAI)}" in result.output

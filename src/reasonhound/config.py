@@ -88,6 +88,10 @@ class ScanConfig(BaseModel):
 
     provider: Provider
     mode: ScanMode = ScanMode.STATIC
+    model: str | None = Field(
+        default=None,
+        description="Provider model id; None means the provider's default. Not a secret.",
+    )
     budget: int = Field(
         default=DEFAULT_BUDGET, ge=1, description="Reasoning rounds per hypothesis."
     )
@@ -120,7 +124,9 @@ def load_config(root: Path) -> ScanConfig | None:
 def save_config(root: Path, config: ScanConfig) -> Path:
     """Write *config* to ``.reasonhound.toml`` under *root* and return its path."""
     path = config_path(root)
-    payload = {"scan": config.model_dump(mode="json")}
+    # TOML has no null, so tomli_w raises on a None value: drop unset fields
+    # instead of writing them.
+    payload = {"scan": config.model_dump(mode="json", exclude_none=True)}
     path.write_text(tomli_w.dumps(payload), encoding="utf-8")
     return path
 

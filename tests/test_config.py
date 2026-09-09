@@ -102,3 +102,37 @@ def test_backcompat_minimal_config_fills_defaults(project: Path) -> None:
     assert cfg.concurrency == DEFAULT_CONCURRENCY
     assert cfg.cost_cap_usd == DEFAULT_COST_CAP_USD
     assert cfg.exclude == list(DEFAULT_EXCLUDE)
+
+
+# --- model selection ---------------------------------------------------------
+
+
+def test_model_defaults_to_none() -> None:
+    assert ScanConfig(provider=Provider.OLLAMA).model is None
+
+
+def test_unset_model_is_not_written_to_toml(project: Path) -> None:
+    """TOML has no null, so an unset model must be omitted rather than serialized."""
+    save_config(project, ScanConfig(provider=Provider.OLLAMA))
+
+    body = config_path(project).read_text()
+    assert "model" not in body
+    assert load_config(project) is not None
+
+
+def test_model_roundtrips(project: Path) -> None:
+    cfg = ScanConfig(provider=Provider.ANTHROPIC, model="claude-haiku-4-5")
+    save_config(project, cfg)
+
+    loaded = load_config(project)
+    assert loaded is not None
+    assert loaded.model == "claude-haiku-4-5"
+
+
+def test_config_without_model_key_still_loads(project: Path) -> None:
+    """Files written before the field existed must keep working."""
+    config_path(project).write_text('[scan]\nprovider = "openai"\nmode = "static"\n')
+
+    loaded = load_config(project)
+    assert loaded is not None
+    assert loaded.model is None

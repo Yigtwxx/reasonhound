@@ -35,7 +35,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Phase 2 (dynamic): bring the target app up in an isolated, egress-locked container.
+# Dynamic phase: bring the target app up in an isolated, egress-locked container.
 dynamic = [
   "docker>=7.0",
 ]

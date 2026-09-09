@@ -20,6 +20,7 @@ from reasonhound.config import (
     load_config,
     save_config,
 )
+from reasonhound.providers import default_model
 
 AUTHORIZED_USE_NOTICE = (
     "Authorized use only: scan systems you own or are explicitly permitted to test."
@@ -88,6 +89,10 @@ def scan(
         ScanMode | None,
         typer.Option("--mode", "-m", help="Scan depth (asked interactively if omitted)."),
     ] = None,
+    model: Annotated[
+        str | None,
+        typer.Option("--model", help="Provider model id (defaults per provider)."),
+    ] = None,
     budget: Annotated[
         int | None,
         typer.Option("--budget", "-b", min=1, help="Max reasoning rounds per hypothesis."),
@@ -131,6 +136,7 @@ def scan(
 
     provider = _resolve_provider(provider, saved)
     mode = _resolve_mode(mode, saved)
+    model = _resolve_model(model, saved, provider)
     if budget is None:
         budget = saved.budget if saved else DEFAULT_BUDGET
 
@@ -151,11 +157,14 @@ def scan(
     # Merge onto the saved config so fields no flag touches (concurrency,
     # cost_cap_usd, exclude) survive the run instead of resetting to defaults.
     base = saved if saved is not None else ScanConfig(provider=provider)
-    config = base.model_copy(update={"provider": provider, "mode": mode, "budget": budget})
+    config = base.model_copy(
+        update={"provider": provider, "mode": mode, "model": model, "budget": budget}
+    )
     save_config(path, config)
 
     typer.echo(f"Target:   {path}")
     typer.echo(f"Provider: {provider.label}")
+    typer.echo(f"Model:    {model}")
     typer.echo(f"Mode:     {mode.label}")
     typer.echo(f"Budget:   {budget} rounds")
     if aggressive:
@@ -216,6 +225,19 @@ def _resolve_mode(mode: ScanMode | None, saved: ScanConfig | None) -> ScanMode:
     if saved is not None:
         return saved.mode
     raise _fail("--mode is required when not running in a terminal.", code=2)
+
+
+def _resolve_model(model: str | None, saved: ScanConfig | None, provider: Provider) -> str:
+    """Flag wins; then a saved model, but only one saved for *this* provider.
+
+    Without the provider guard, a project that once ran with Anthropic would send
+    a Claude model id to OpenAI on the next run and get a confusing 404.
+    """
+    if model is not None:
+        return model
+    if saved is not None and saved.model and saved.provider is provider:
+        return saved.model
+    return default_model(provider)
 
 
 def main() -> None:

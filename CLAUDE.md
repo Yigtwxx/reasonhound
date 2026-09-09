@@ -21,8 +21,10 @@ runs on any BYOK provider. The terminal is the UI: a guided startup wizard, then
 a live Textual monitor that shows which agent is doing what and lets the user
 pause / kill agents. Full architecture: [`docs/DESIGN.md`](docs/DESIGN.md).
 
-> Status: pre-alpha. `pyproject.toml` + CLI skeleton exist (`src/reasonhound/`);
-> the scan pipeline modules are empty stubs.
+> Status: pre-alpha. The CLI skeleton, `security` primitives, and the four BYOK
+> provider adapters are implemented (`src/reasonhound/`); the scan pipeline
+> modules (`recon`, `static`, `brain`, `dynamic`, `verify`, `report`) are still
+> empty stubs, and `orchestrator`, `agents/`, `tools/`, and `tui` do not exist yet.
 
 ## Stack
 
@@ -57,7 +59,7 @@ testable.
 | `agents/` | The ~35-agent subagent library, grouped by phase; each agent binds its own toolkit |
 | `tools/` | Tool implementations exposed to agents (fs, ast, probe, docker, browser, redact, egress) |
 | `static` | Hybrid tree-sitter + LLM: parse, trace tainted data flow, emit hypotheses |
-| `dynamic` | Phase 2: Docker bring-up (egress-locked) **or attach to a running localhost target** (`--target`) + harmless probing |
+| `dynamic` | Docker bring-up (egress-locked) **or attach to a running localhost target** (`--target`) + harmless probing |
 | `verify` | Red/Blue/Arbiter double-voting + reproducible PoC capture |
 | `security` | Secret redaction, prompt-injection defense, egress guard, audit log |
 | `report` | Writes the `Reasonhound/` folder (INDEX + per-finding Markdown + audit.log), smart merge |

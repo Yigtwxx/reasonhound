@@ -108,7 +108,7 @@ scan
        ├─ recon agents        (map: frameworks, endpoints, input points, trust boundaries)
        ├─ static hunters      (Phase 1: per-vuln-class specialists → hypotheses)
        ├─ frontend/JS agents  (source maps, browser runtime, supply-chain, framework-aware)
-       ├─ dynamic agents      (Phase 2, optional: Docker bring-up + harmless probes)
+       ├─ dynamic agents      (optional: Docker bring-up + harmless probes)
        ├─ verification agents (double-voting: prove / disprove / arbitrate / reproduce)
        └─ support agents      (redaction, injection-warden, scoring, report, budget, status)
 ```
@@ -180,7 +180,7 @@ minimal — an agent can only touch the tools listed for it.
 | `framework-specialist` | Next / React / Vue: server actions, hydration, `NEXT_PUBLIC_*` leaks | ast.parse, fs.grep |
 | `client-secret-forager` | API keys / tokens / flags shipped to the client | fs.grep, entropy.scan, sourcemap.unpack |
 
-### 4.4 Dynamic (Phase 2 — egress-locked)
+### 4.4 Dynamic (egress-locked)
 
 | Agent | Role | Toolkit |
 | --- | --- | --- |
@@ -352,7 +352,7 @@ rule does not apply.)
 | Install | Gets you |
 | --- | --- |
 | `pipx install reasonhound` | base: static phase + TUI (typer, questionary, textual, httpx, tree-sitter, pydantic) |
-| `pipx install "reasonhound[dynamic]"` | + Docker bring-up for Phase 2 |
+| `pipx install "reasonhound[dynamic]"` | + Docker bring-up for the dynamic phase |
 | `pipx install "reasonhound[frontend]"` | + Playwright headless browser (`browser-detonator`, DOM XSS) |
 | `pipx install "reasonhound[all]"` | everything |
 

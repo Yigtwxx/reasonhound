@@ -6,7 +6,31 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+- The four BYOK provider adapters, written directly against each HTTP API with
+  `httpx` and no vendor SDKs: Anthropic (Messages), OpenAI (Chat Completions),
+  Google Gemini (`generateContent`), and Ollama (`/api/chat`). All four support
+  tool use and streaming behind the existing `LLMProvider` interface.
+- A shared HTTP base that owns the client lifecycle, error mapping, and the
+  **always-on egress redaction** — the request body is redacted in one place, so
+  no adapter can forget it. Structural fields (tool-call ids and names, model
+  ids, tool schemas) are exempt so redaction cannot corrupt the protocol.
+- Retry with exponential backoff, jitter, and `Retry-After` support for rate
+  limits, overload, and dropped connections. Streams retry only before the first
+  byte; replaying a half-delivered stream would duplicate text.
+- `create_provider()` reads the API key from the environment at call time and
+  keeps it only in request headers; a missing key names the variable, never the
+  value.
+- Model selection: `ScanConfig.model`, a per-provider default, and a `--model`
+  flag. A saved model is reused only for the provider it was saved with. Defaults
+  are the current top-tier stable model per provider (verified 2026-09-09).
+
+### Fixed
+- `save_config` now drops unset fields; TOML has no null and `tomli_w` raises on
+  a `None` value.
+- Ollama's default model carries an explicit tag (`llama3.1:8b`); a bare
+  `llama3.1` returns a 404 unless `:latest` happens to be pulled. A
+  model-not-found error now names the `ollama pull` command that fixes it.
 
 ## [0.0.1] - 2026-09-03
 
