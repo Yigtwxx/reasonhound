@@ -25,9 +25,28 @@ def test_version(runner: CliRunner) -> None:
     assert __version__ in result.output
 
 
-def test_no_args_shows_help(runner: CliRunner) -> None:
+def test_no_args_shows_help_when_not_interactive(runner: CliRunner) -> None:
     result = runner.invoke(app, [])
+    assert result.exit_code == 0
     assert "scan" in result.output
+
+
+def test_no_args_starts_interactive_scan_of_cwd(
+    runner: CliRunner,
+    project: Path,
+    no_api_keys: None,
+    interactive: None,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(prompts, "ask_provider", lambda default=None: Provider.OLLAMA)
+    monkeypatch.setattr(prompts, "ask_mode", lambda default=None: ScanMode.STATIC)
+    monkeypatch.chdir(project)
+
+    result = runner.invoke(app, [], input="y\n")
+    assert result.exit_code == 0, result.output
+    assert f"Target:   {project}" in result.output
+    assert AUTHORIZED_USE_NOTICE in result.output
+    assert load_config(project) is not None
 
 
 def test_scan_static_ollama(runner: CliRunner, project: Path, no_api_keys: None) -> None:

@@ -32,22 +32,14 @@ dependencies = [
   "tomli-w>=1.0",          # write .reasonhound.toml
   "tree-sitter>=0.21",     # hybrid static engine: multi-language parsing
   "tree-sitter-language-pack>=0.2",  # grammars for the tree-sitter engine
+  # Everything ships in one install: `pipx install reasonhound` is the whole tool.
+  "docker>=7.0",           # dynamic phase: isolated, egress-locked target container
+  "playwright>=1.44",      # frontend phase: headless browser (browser binaries fetched on first use)
+  "lancedb>=0.25",         # project memory: local, file-based vector index
 ]
 
 [project.optional-dependencies]
-# Dynamic phase: bring the target app up in an isolated, egress-locked container.
-dynamic = [
-  "docker>=7.0",
-]
-# Frontend/JS deep phase: headless-browser detonation, DOM XSS, bundle analysis.
-frontend = [
-  "playwright>=1.44",
-]
-# Everything.
-all = [
-  "reasonhound[dynamic]",
-  "reasonhound[frontend]",
-]
+# Contributor tooling only; users never need an extra.
 dev = [
   "pytest>=8.0",
   "ruff>=0.5",

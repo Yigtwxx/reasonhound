@@ -34,7 +34,8 @@ AGGRESSIVE_QUESTION = (
 app = typer.Typer(
     name="reasonhound",
     help="AI-assisted security scanner that reasons like a senior researcher.",
-    no_args_is_help=True,
+    # A bare `reasonhound` opens the interactive flow instead of printing help.
+    invoke_without_command=True,
     add_completion=False,
     rich_markup_mode=None,
 )
@@ -48,6 +49,7 @@ def _version_callback(value: bool) -> None:
 
 @app.callback()
 def root(
+    ctx: typer.Context,
     version: Annotated[
         bool,
         typer.Option(
@@ -59,7 +61,19 @@ def root(
         ),
     ] = False,
 ) -> None:
-    """Reasonhound command-line interface."""
+    """Reasonhound command-line interface.
+
+    Run with no command in a terminal to scan the current directory
+    interactively; ``reasonhound scan`` takes the same flow with flags.
+    """
+    if ctx.invoked_subcommand is not None:
+        return
+    if not prompts.is_interactive():
+        # Scripts and CI get the help text: there is nobody to answer questions.
+        typer.echo(ctx.get_help())
+        raise typer.Exit()
+    typer.secho(f"Reasonhound {__version__}", bold=True)
+    scan(path=Path.cwd())
 
 
 def _fail(message: str, code: int = 1) -> typer.Exit:
