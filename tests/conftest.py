@@ -2,13 +2,23 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+import re
+import threading
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 
 import httpx
 import pytest
 from typer.testing import CliRunner
 
+from reasonhound.providers.base import (
+    Completion,
+    Message,
+    StreamEvent,
+    ToolCall,
+    ToolSpec,
+    Usage,
+)
 from reasonhound.providers.retry import RetryPolicy
 
 #: Retries without wall-clock cost: a zero base delay makes the jitter zero too.
@@ -74,3 +84,84 @@ def capture() -> Callable[..., tuple[httpx.Client, list[httpx.Request]]]:
         return httpx.Client(transport=httpx.MockTransport(_handle)), requests
 
     return _make
+
+
+# --- agent runtime helpers ---------------------------------------------------
+
+_AGENT_IN_PROMPT = re.compile(r"You are `([a-z0-9-]+)`")
+
+
+def submit(call_id: str = "s1", **arguments: object) -> Completion:
+    """A completion whose only tool call is ``submit_result``."""
+    return Completion(
+        tool_calls=(ToolCall(id=call_id, name="submit_result", arguments=dict(arguments)),),
+        usage=Usage(input_tokens=100, output_tokens=50),
+    )
+
+
+def call(name: str, call_id: str = "c1", **arguments: object) -> Completion:
+    """A completion with a single tool call."""
+    return Completion(
+        tool_calls=(ToolCall(id=call_id, name=name, arguments=dict(arguments)),),
+        usage=Usage(input_tokens=100, output_tokens=50),
+    )
+
+
+class ScriptedProvider:
+    """Thread-safe fake that routes scripted completions by agent name.
+
+    The agent is read from the system prompt, so parallel agents each consume
+    their own script regardless of scheduling order. A drained script answers
+    with plain text (which the runtime treats as "no tool call").
+    """
+
+    name = "scripted"
+
+    def __init__(self, scripts: dict[str, list[Completion]]) -> None:
+        self._scripts = {agent: list(items) for agent, items in scripts.items()}
+        self._lock = threading.Lock()
+        self.calls: list[tuple[str, tuple[Message, ...]]] = []
+
+    def complete(
+        self,
+        messages: Sequence[Message],
+        *,
+        system: str | None = None,
+        tools: Sequence[ToolSpec] = (),
+        max_tokens: int = 1024,
+        temperature: float = 0.0,
+    ) -> Completion:
+        match = _AGENT_IN_PROMPT.search(system or "")
+        agent = match.group(1) if match else "?"
+        with self._lock:
+            self.calls.append((agent, tuple(messages)))
+            script = self._scripts.get(agent, [])
+            if script:
+                return script.pop(0)
+        return Completion(text="thinking", usage=Usage(input_tokens=10, output_tokens=5))
+
+    def stream(self, *args: object, **kwargs: object) -> Iterator[StreamEvent]:
+        raise NotImplementedError
+
+
+@pytest.fixture
+def sample_project(tmp_path: Path) -> Path:
+    """A tiny project with code, an excluded dir, and a previous report folder."""
+    root = tmp_path / "proj"
+    (root / "app").mkdir(parents=True)
+    (root / "app" / "views.py").write_text(
+        "import os\n\n\ndef login(request):\n"
+        "    user = request.args['user']\n"
+        "    return db.execute(f\"SELECT * FROM users WHERE name = '{user}'\")\n\n\n"
+        "class Admin:\n    def delete(self, uid):\n        pass\n",
+        encoding="utf-8",
+    )
+    (root / "app" / "main.js").write_text(
+        "function render(x) { document.body.innerHTML = x; }\n", encoding="utf-8"
+    )
+    (root / "README.md").write_text("# demo\n", encoding="utf-8")
+    (root / "node_modules" / "lib").mkdir(parents=True)
+    (root / "node_modules" / "lib" / "index.js").write_text("SELECT secret\n", encoding="utf-8")
+    (root / "Reasonhound").mkdir()
+    (root / "Reasonhound" / "INDEX.md").write_text("SELECT old finding\n", encoding="utf-8")
+    return root

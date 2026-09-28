@@ -13,8 +13,8 @@ Known limitation: tool *arguments* are redacted along with everything else, so a
 tool invoked with a credential-shaped argument -- ``grep(pattern="AKIA[0-9A-Z]{16}")``
 is the obvious case for a secret-scanning agent -- has that argument masked and
 the call silently loses its meaning. Over-redaction is the stated policy, and
-the right fix is a per-tool exemption owned by ``tools/``, which does not exist
-yet. Revisit when it does.
+the right fix is a per-tool exemption owned by ``tools/``; not implemented yet
+(no current tool takes a credential-shaped argument).
 """
 
 from __future__ import annotations
