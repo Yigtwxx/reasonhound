@@ -27,10 +27,20 @@ from reasonhound.providers.base import (
 )
 from reasonhound.providers.http import HttpProvider, iter_ndjson
 
-__all__ = ["OLLAMA_DEFAULT_HOST", "OLLAMA_HOST_ENV", "OllamaProvider", "resolve_host"]
+__all__ = [
+    "OLLAMA_DEFAULT_HOST",
+    "OLLAMA_DEFAULT_NUM_CTX",
+    "OLLAMA_HOST_ENV",
+    "OllamaProvider",
+    "resolve_host",
+]
 
 OLLAMA_DEFAULT_HOST = "http://localhost:11434"
 OLLAMA_HOST_ENV = "OLLAMA_HOST"
+# Ollama's own default window is a few thousand tokens and it truncates the
+# *front* of an over-long conversation silently -- the system prompt (with the
+# data-fencing rule) is the first thing lost. Agent runs need room for tool output.
+OLLAMA_DEFAULT_NUM_CTX = 32_768
 
 
 def resolve_host(host: str | None = None) -> str:
@@ -52,8 +62,9 @@ class OllamaProvider(HttpProvider):
 
     name = "ollama"
 
-    def __init__(self, *, model: str, **kwargs: Any) -> None:
+    def __init__(self, *, model: str, num_ctx: int = OLLAMA_DEFAULT_NUM_CTX, **kwargs: Any) -> None:
         super().__init__(model=model, base_url=resolve_host(kwargs.pop("base_url", None)), **kwargs)
+        self.num_ctx = num_ctx
 
     def _headers(self) -> dict[str, str]:
         return {"content-type": "application/json"}
@@ -99,7 +110,7 @@ class OllamaProvider(HttpProvider):
         for message in messages:
             wire_messages.extend(self._render_message(message, names_by_id))
 
-        options: dict[str, Any] = {"num_predict": max_tokens}
+        options: dict[str, Any] = {"num_predict": max_tokens, "num_ctx": self.num_ctx}
         if temperature != 0.0:
             options["temperature"] = temperature
         body: dict[str, Any] = {

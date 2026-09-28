@@ -104,7 +104,7 @@ def test_options_carry_limits(capture, no_api_keys: None) -> None:
     provider = _provider(client)
 
     provider.complete([Message(role=Role.USER, content="hi")], max_tokens=64)
-    assert _body(requests[0])["options"] == {"num_predict": 64}
+    assert _body(requests[0])["options"] == {"num_predict": 64, "num_ctx": 32_768}
 
     provider.complete([Message(role=Role.USER, content="hi")], temperature=0.2)
     assert _body(requests[1])["options"]["temperature"] == 0.2
@@ -203,3 +203,10 @@ def test_model_not_found_error_says_how_to_fix_it(capture, no_api_keys: None) ->
 
     assert "ollama pull llama3.1" in str(excinfo.value)
     assert "--model" in str(excinfo.value)
+
+
+def test_num_ctx_is_configurable(capture, no_api_keys: None) -> None:
+    client, requests = capture(httpx.Response(200, json=COMPLETION_BODY))
+    provider = OllamaProvider(model="llama3.1:8b", client=client, num_ctx=8192)
+    provider.complete([Message(role=Role.USER, content="hi")])
+    assert _body(requests[0])["options"]["num_ctx"] == 8192

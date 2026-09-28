@@ -29,8 +29,11 @@ DEFAULT_MODELS: dict[Provider, str] = {
     Provider.ANTHROPIC: "claude-opus-5",
     Provider.OPENAI: "gpt-6-astra",
     Provider.GEMINI: "gemini-3.8-flash",
-    # Ollama needs an explicit tag: a bare "llama3.1" 404s unless :latest was pulled.
-    Provider.OLLAMA: "llama3.1:8b",
+    # Ollama needs an explicit tag: a bare name 404s unless :latest was pulled.
+    # qwen3.5:9b (6.7 GB loaded at 32K context) found every planted bug in live
+    # tool-calling scans with correct file:line and graded severity. gpt-oss:20b
+    # found them too but left the location empty; llama3.1:8b never submitted.
+    Provider.OLLAMA: "qwen3.5:9b",
 }
 
 _ADAPTERS: dict[Provider, type[HttpProvider]] = {
