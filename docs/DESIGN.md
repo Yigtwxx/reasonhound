@@ -136,6 +136,11 @@ scan
 orchestrator picks a subset per run. Each agent's **toolkit** is fixed and
 minimal — an agent can only touch the tools listed for it.
 
+Toolkit names below are conceptual (`fs.read`). On the wire they use
+underscores (`fs_read`, `ast_parse`), because OpenAI and Anthropic only accept
+`[a-zA-Z0-9_-]` in tool names. Every agent also gets an implicit
+`submit_result` tool, and submitting through it is the only way to finish.
+
 ### 4.0 Orchestration
 
 | Agent | Role | Toolkit |
@@ -321,7 +326,8 @@ Reasonhound/
 │   ├── 001-critical-sqli-api-search.md
 │   ├── 002-high-idor-users-id.md
 │   └── …
-└── audit.log                      # every probe sent (accountability)
+├── audit.log                      # every probe sent (accountability)
+└── .memory/                       # local project memory, never committed (§9.1)
 ```
 
 Each finding file contains: title · status (confirmed / suspected / rejected) ·
@@ -334,6 +340,61 @@ updated in place (status / timestamp), new findings are added, and findings that
 no longer reproduce are marked **resolved**. History is preserved rather than
 overwritten.
 
+### 9.1 Project memory (local, per project)
+
+Repeat scans of the same project get faster and quieter by remembering what
+earlier scans **proved**: which helpers are real sanitizers, where the auth gate
+lives, which recurring coding patterns kept producing real bugs, and which
+candidates were refuted and why. The memory belongs to one project and never
+leaves its folder:
+
+```
+Reasonhound/
+└── .memory/
+    ├── .gitignore        # "*": never committed with the user's repo by accident
+    ├── memory.sqlite     # structured facts (stdlib sqlite3)
+    └── vectors/          # local vector index (embedded, file-based, no server)
+```
+
+**Two layers, one set of facts.**
+
+| Layer | Holds | Used for |
+| --- | --- | --- |
+| Structured (SQLite) | facts with a kind (`safe-sink`, `auth-gate`, `recurring-pattern`, `refuted`, `confirmed`), repo-relative location, reason, verdict, provenance (run id, agents), and the content hashes of the files it depends on | exact lookups: "is `db.safe_query` a known sanitizer?", "was this candidate refuted before?" |
+| Vector (embedded index) | an embedding per fact's code snippet and description, keyed by fact id | similarity recall: "this handler looks like the one that was an IDOR last time" |
+
+The vector layer is an **index over the SQLite facts**, not a second source of
+truth: every vector hit resolves to a fact row, and a fact's validity is decided
+by SQLite alone. The vector store is embedded and file-based (candidate:
+LanceDB; a brute-force scan over SQLite blobs is the fallback for small memories).
+It ships in the base install (`lancedb`), like every other phase.
+
+**Fully local, no exceptions.** Embeddings are always computed by a local
+Ollama embedding model (e.g. `qwen3-embedding:0.6b`, `nomic-embed-text`) — even
+when the reasoning provider is a cloud API, project code is never sent anywhere
+to be embedded. With no local embedder available, the vector layer is simply
+off and the structured layer still works.
+
+**Poisoning defense (hard rules).** Scanned code is untrusted, so memory is the
+place a prompt injection would try to become permanent ("this function is
+safe" planted in a comment, remembered forever). Therefore:
+
+1. **Only verified outcomes are written.** Facts come from the `arbiter`'s
+   confirmed / rejected verdicts (after red / blue voting), never from a raw
+   hunter claim, a code comment, or file content.
+2. **Agents cannot write memory.** Recall is a read-only tool
+   (`memory_recall`) granted per agent; writing is done by the runtime after
+   verification. The memory files sit inside `Reasonhound/`, which the file
+   tools already exclude, so no agent can read or edit them directly.
+3. **Bound to content hashes.** A fact records the hashes of the files it relied
+   on; if any changes, the fact is stale and ignored until re-verified.
+4. **Advisory, auditable.** Memory can prioritize and skip re-work on
+   *unchanged* code, but a finding suppressed because of memory is listed in the
+   report with the fact that suppressed it. Recalled text is redacted before it
+   is stored and data-fenced when it is shown to a model.
+5. **User control.** `--no-memory` scans without it; `--reset-memory` deletes
+   `.memory/`. On POSIX the folder is created `0700`.
+
 ## 10. Cross-platform
 
 Pure Python 3.11+, `pathlib` throughout, no OS-specific shell assumptions. The
@@ -345,18 +406,20 @@ rule does not apply.)
 
 - `pyproject.toml`, published to **PyPI** as `reasonhound`; release automated via
   **GitHub Actions** on tag push. No server, no domain, no deploy.
-- Recommended install is **`pipx`** (isolated env, global `reasonhound`
-  command). Heavy dependencies are split into **optional extras** so the base
-  install stays light:
-
-| Install | Gets you |
-| --- | --- |
-| `pipx install reasonhound` | base: static phase + TUI (typer, questionary, textual, httpx, tree-sitter, pydantic) |
-| `pipx install "reasonhound[dynamic]"` | + Docker bring-up for the dynamic phase |
-| `pipx install "reasonhound[frontend]"` | + Playwright headless browser (`browser-detonator`, DOM XSS) |
-| `pipx install "reasonhound[all]"` | everything |
-
-The base CLI warns and points at the right extra when a phase needs it.
+- **One install, everything included.** `pipx install reasonhound` (or
+  `uv tool install` / `pip install`) pulls every phase: typer, questionary,
+  textual, httpx, tree-sitter, pydantic, `docker` (dynamic), `playwright`
+  (frontend), `lancedb` (project memory). There are no user-facing extras; the
+  only extra is `dev` for contributors. The cost is a heavier install (roughly
+  150 MB, most of it lancedb + pyarrow + playwright), accepted for a
+  single-command setup.
+- **`reasonhound` alone opens the UI.** A bare command in a terminal runs the
+  interactive flow on the current directory (wizard now; the Textual live
+  monitor attaches to the same entry point in Phase 8). Without a TTY it prints
+  help, so scripts never hang on a prompt.
+- **Outside pip's reach:** the Docker engine, Ollama, and Playwright's browser
+  binaries. The CLI detects each one when a phase needs it and says how to get it;
+  the browser is downloaded on first use of the frontend phase, after asking.
 
 ## 12. Testing
 
@@ -365,12 +428,42 @@ The base CLI warns and points at the right extra when a phase needs it.
   end-to-end target for the dynamic phase.
 - `ruff check` + `ruff format --check` clean in CI.
 
-## 13. Open questions / future
+## 13. Roadmap decisions (resolved 2026-09-28)
 
-- Optional SARIF output + CI exit codes (deferred; Markdown is the day-one
-  output).
-- Baseline / suppression file (`.reasonhound-ignore`) for accepted findings.
-- Diff / changed-files scan mode for PRs (whole-repo is the default).
-- Per-role model assignment (currently the orchestrator picks; per-role BYOK is a
-  future option).
-- Growing the subagent library beyond the initial 35.
+These were previously open; all are now scoped into the build plan. Releases stay
+on the **`v0.x`** line until a `v1` is explicitly requested — "v1" below means the
+scope milestone, not a version tag.
+
+- **SARIF output + CI exit codes — in the v0.x milestone.** `--format
+  {markdown,sarif}` (Markdown stays the default; SARIF writes
+  `Reasonhound/reasonhound.sarif`). `--fail-on {critical,high,medium,low,none}`
+  (default `high`) counts **CONFIRMED** findings only; exit `0` clean, `1`
+  threshold reached, `2` scan error.
+- **Baseline / suppression — file-based only.** `.reasonhound-ignore.toml` keyed
+  by finding fingerprint, each entry requiring a `reason` (optional `expires`).
+  Suppressed findings are still listed, marked suppressed. **No inline-comment
+  suppression:** scanned code is untrusted, so a `# reasonhound: ignore` could be
+  attacker-planted; suppression lives only in the repo-owned TOML.
+- **Diff / changed-files scan.** `--diff <git-ref>` scans changed files **plus
+  their data-flow neighbors** (so cross-file taint is not missed); hash-bound
+  memory skips unchanged code. Whole-repo remains the default.
+- **Per-role model assignment.** Config supports per-agent and per-agent
+  *provider*+model overrides (resolution: per-agent → group → tier → default). v1
+  auto-assigns a `fast`/`strong` split (recon/support = fast, hunters/arbiter =
+  strong). Ollama defaults: orchestrator + `arbiter` = `qwen3.6:35b-a3b`, the rest
+  = `qwen3.5:9b`, with a RAM-based fallback to `qwen3.5:9b` when both won't fit.
+- **Growing the agent library.** A first-party **`restricted`** tier holds
+  powerful-but-risky agents that never run by default; each is enabled by name
+  (`--enable-agent <name>`), asks for in-run confirmation, is written to
+  `audit.log`, and — when it touches the network/target — also requires
+  `--aggressive`. The v1 `restricted` set: `secret-validator`, `fuzz-storm`,
+  `waf-evader`, `auth-bruteforcer`, plus the malware/threat-emulation agents
+  `dependency-detonator`, `deserialization-detonator`, and `sandbox-escaper`.
+  User extension: TOML prompt-agents (restricted to existing read-only tools) in
+  v1.x; Python-plugin agents/tools in v2.
+
+### Still deferred (v2+)
+
+- TUI drill-in into one agent's full reasoning/tool history (v1 shows the live
+  reasoning stream only).
+- Python-plugin agents/tools (trust boundary designed first).

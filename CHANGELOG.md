@@ -7,6 +7,25 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- The agent runtime. `tools/` offers read-only, root-sandboxed `fs_read`,
+  `fs_grep`, `fs_glob` and a tree-sitter `ast_parse` outline; every output is
+  data-fenced, and each agent gets a `Toolbox` built from its fixed allowlist, so
+  a call outside it is refused and reported (`ToolDenied`). Tool schemas are
+  reduced to a subset every provider accepts (no `$ref`, `Optional` as `nullable`).
+- `agents/`: `AgentSpec` + `run_agent`, a bounded hypothesize / investigate /
+  judge / pivot loop that finishes only through a `submit_result` tool whose
+  arguments must validate against the agent's strict output model; rejected
+  submissions are fed back for a fix. `HunterReport` / `HypothesisDraft` are the
+  first contracts; the runtime assigns ids and attribution.
+- `orchestrator`: `lead-strategist` plans with the model, drops agents that are
+  not in the catalog (falling back to "run every agent once" when nothing usable
+  is left), dispatches runs on a thread pool, and dedupes hypotheses.
+- `budget`: a thread-safe ledger that prices every completion and stops the scan
+  at `cost_cap_usd`; unknown models are priced high so the cap never silently
+  switches off. `control`: kill one agent, kill all, pause / resume (Ctrl-C maps
+  to kill-all). `events`: a typed event bus for the upcoming TUI.
+- Stops are cooperative and always return what was collected (`PARTIAL` with a
+  reason) instead of discarding the run.
 - The four BYOK provider adapters, written directly against each HTTP API with
   `httpx` and no vendor SDKs: Anthropic (Messages), OpenAI (Chat Completions),
   Google Gemini (`generateContent`), and Ollama (`/api/chat`). All four support
@@ -25,11 +44,30 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   flag. A saved model is reused only for the provider it was saved with. Defaults
   are the current top-tier stable model per provider (verified 2026-09-09).
 
+- Release automation: pushing a `vX.Y.Z` tag tests on Linux / macOS / Windows,
+  checks the tag against the package version, and publishes to PyPI through
+  Trusted Publishing (OIDC, no stored token). Actions are pinned to commit SHAs.
+
+### Changed
+- One install now includes every phase: `docker`, `playwright` and `lancedb`
+  moved into the base dependencies and the `[dynamic]` / `[frontend]` / `[all]`
+  extras are gone. `pipx install reasonhound` is the whole tool.
+- Running `reasonhound` with no command in a terminal starts the interactive
+  scan of the current directory; without a terminal it still prints help.
+- The Ollama default model is now `qwen3.5:9b` (6.7 GB of memory at 32K
+  context). In live tool-calling scans it found every planted bug with the
+  correct `file:line` and graded severity; `gpt-oss:20b` found them but left the
+  location empty, and `llama3.1:8b` never submitted a result. With more memory,
+  `--model qwen3.6:35b-a3b` (23 GB) is the stronger local choice.
+
 ### Fixed
+- The Ollama adapter now sends `num_ctx` (default 32768). Without it Ollama used
+  its small default window and silently cut the front of long agent
+  conversations, system prompt and data-fencing rule first.
 - `save_config` now drops unset fields; TOML has no null and `tomli_w` raises on
   a `None` value.
-- Ollama's default model carries an explicit tag (`llama3.1:8b`); a bare
-  `llama3.1` returns a 404 unless `:latest` happens to be pulled. A
+- Ollama's default model carries an explicit tag; a bare name returns a 404
+  unless `:latest` happens to be pulled. A
   model-not-found error now names the `ollama pull` command that fixes it.
 
 ## [0.0.1] - 2026-09-03

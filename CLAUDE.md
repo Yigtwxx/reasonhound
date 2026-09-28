@@ -21,10 +21,12 @@ runs on any BYOK provider. The terminal is the UI: a guided startup wizard, then
 a live Textual monitor that shows which agent is doing what and lets the user
 pause / kill agents. Full architecture: [`docs/DESIGN.md`](docs/DESIGN.md).
 
-> Status: pre-alpha. The CLI skeleton, `security` primitives, and the four BYOK
-> provider adapters are implemented (`src/reasonhound/`); the scan pipeline
-> modules (`recon`, `static`, `brain`, `dynamic`, `verify`, `report`) are still
-> empty stubs, and `orchestrator`, `agents/`, `tools/`, and `tui` do not exist yet.
+> Status: pre-alpha. The CLI skeleton, `security` primitives, the four BYOK
+> provider adapters, and the agent runtime (`tools/`, `agents/` runtime + catalog,
+> `orchestrator`, `events`, `budget`, `control`) are implemented. The specialist
+> agent library and the scan pipeline modules (`recon`, `static`, `brain`,
+> `dynamic`, `verify`, `report`) are still stubs, `tui` does not exist yet, and
+> `reasonhound scan` is not wired to the orchestrator.
 
 ## Stack
 
@@ -38,10 +40,12 @@ pause / kill agents. Full architecture: [`docs/DESIGN.md`](docs/DESIGN.md).
 - **Config:** `pydantic` + TOML (`.reasonhound.toml`; no secrets)
 - **Containers:** Docker (optional, dynamic phase only) via the local Docker CLI,
   run in an isolated egress-locked network
-- **Browser (frontend phase):** `playwright` headless (optional extra)
-- **Packaging:** `pyproject.toml` (hatchling), optional extras
-  (`[dynamic]`, `[frontend]`, `[all]`), published to PyPI via GitHub Actions;
-  recommended install is `pipx`
+- **Browser (frontend phase):** `playwright` headless (browser binaries fetched on first use)
+- **Project memory:** stdlib `sqlite3` + `lancedb` (local vector index)
+- **Packaging:** `pyproject.toml` (hatchling), **one install includes every
+  phase** — no user-facing extras (only `dev`). Published to PyPI via GitHub
+  Actions; recommended install is `pipx`. A bare `reasonhound` opens the
+  interactive flow on the current directory.
 - **Lint/format:** `ruff`
 - **Tests:** `pytest`
 
@@ -63,6 +67,7 @@ testable.
 | `verify` | Red/Blue/Arbiter double-voting + reproducible PoC capture |
 | `security` | Secret redaction, prompt-injection defense, egress guard, audit log |
 | `report` | Writes the `Reasonhound/` folder (INDEX + per-finding Markdown + audit.log), smart merge |
+| `memory` | Per-project memory in `Reasonhound/.memory/`: SQLite facts + local vector index; written only from verified findings, embeddings only via local Ollama |
 | `config` | `.reasonhound.toml` schema and persistence (no secrets) |
 
 ## Language rules
@@ -101,6 +106,11 @@ path separators or shell assumptions. Developed on macOS (Apple Silicon).
   it is re-asked each run and never persisted. Only non-secret preferences are
   written to `.reasonhound.toml`.
 - Never send user code to any provider the user did not explicitly select.
+- **Project memory is local-only.** It lives in `Reasonhound/.memory/` inside
+  the scanned project; embeddings are computed only by a local Ollama model,
+  never a cloud API. Only verified (arbiter) outcomes are written, by the
+  runtime — agents get read-only recall. Facts are bound to file hashes and
+  ignored once the code changes. See `docs/DESIGN.md` §9.1.
 
 ## Verification (before declaring work done)
 

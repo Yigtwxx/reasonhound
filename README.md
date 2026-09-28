@@ -88,27 +88,32 @@ Not on PyPI yet. Install from source (Python 3.11+):
 
 ```bash
 git clone https://github.com/Yigtwxx/reasonhound.git
-cd Reasonhound
+cd reasonhound
 uv venv --python 3.11 && uv pip install -e ".[dev]"   # or: pip install -e ".[dev]"
 reasonhound --help
 ```
 
-Once released, `pipx` is the recommended way (isolated env, global `reasonhound`
-command). Heavy dependencies are optional extras, so the base install stays light:
+Once released, one command installs everything — every phase, the terminal UI,
+and project memory. No extras to pick:
 
 ```bash
-pipx install reasonhound                 # base: static phase + live TUI
-pipx install "reasonhound[dynamic]"      # + Docker bring-up for the dynamic phase
-pipx install "reasonhound[frontend]"     # + headless browser (DOM XSS, bundle analysis)
-pipx install "reasonhound[all]"          # everything
+pipx install reasonhound        # recommended: isolated env, global command
+uv tool install reasonhound     # same, with uv
+pip install reasonhound         # into the current environment
 ```
 
-The base CLI warns and points you at the right extra when a phase needs it.
+Then run `reasonhound` in your project folder: it opens the interactive flow in
+the terminal (`reasonhound scan` takes the same flow with flags, for scripts and CI).
+
+Three things live outside Python and cannot come with `pip`: **Docker** (only for
+the dynamic phase's isolated container), **Ollama** (only if you want a local
+model, and for project-memory embeddings), and Playwright's **browser binaries**
+(fetched on first use of the frontend phase).
 
 Keys are read from the environment only (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
 `GEMINI_API_KEY`); Ollama needs none and honours `OLLAMA_HOST`.
 
-Cross-platform by design — pure Python, developed on macOS, runs on **macOS, Windows, and Linux**. Docker is optional and only used for the dynamic phase.
+Cross-platform by design — developed on macOS, runs on **macOS, Windows, and Linux**. Docker is optional and only used for the dynamic phase.
 
 ## Usage
 
@@ -146,13 +151,15 @@ Reasonhound is a **defensive** tool for testing systems **you own or are explici
 - [x] CLI skeleton & interactive prompts
 - [x] BYOK provider abstraction — four `httpx` adapters (Anthropic / OpenAI / Gemini / Ollama)
 - [x] `security`: egress redaction + prompt-injection defense (data-fencing, tool allowlists)
-- [ ] `orchestrator` + `agents/`: the subagent library (~35 agents, own toolkits)
+- [x] Agent runtime: allowlisted tools, bounded agent loop, budget ledger, kill-switch, event bus, `lead-strategist` orchestrator
+- [ ] `agents/`: the specialist library (~35 agents, own toolkits)
 - [ ] `static`: hybrid tree-sitter + LLM data-flow / hypothesis engine
 - [ ] `verify`: double-voting (prove / disprove / arbitrate) + reproducible PoC
 - [ ] `dynamic`: egress-locked Docker bring-up + safe probing
 - [ ] Frontend/JS deep phase: source maps, supply-chain, headless-browser detonation
 - [ ] `tui`: Textual live monitor (agent tree, findings feed, budget, kill-switch)
 - [ ] `report`: `Reasonhound/` folder writer (per-finding Markdown, smart merge)
+- [ ] Project memory: per-project SQLite facts + local vector index in `Reasonhound/.memory/`, written only from verified findings (see `docs/DESIGN.md` §9.1)
 - [ ] Deliberately-vulnerable sample app for end-to-end tests
 
 ## Contributing
