@@ -52,3 +52,18 @@ under 72 characters and use the imperative mood ("add", not "added").
 
 By contributing you agree your work is licensed under the project's
 [MIT License](LICENSE).
+
+## Releasing (maintainers)
+
+Releases are published to PyPI by `.github/workflows/release.yml` through
+**Trusted Publishing** — no API token exists anywhere.
+
+1. Bump `version` in `pyproject.toml` and move the `[Unreleased]` notes in
+   `CHANGELOG.md` under the new version.
+2. Commit, then tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+3. The workflow tests on Linux / macOS / Windows, refuses a tag that does not
+   match the `pyproject.toml` version, builds, and publishes from the `pypi`
+   environment.
+
+PyPI versions are immutable: a published version can never be re-uploaded.
+
