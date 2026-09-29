@@ -7,7 +7,7 @@ import sitemap from '@astrojs/sitemap';
 // ever moves under a hub site, set both together and every asset path follows
 // (see src/lib/base.ts).
 export default defineConfig({
-    site: 'https://reasonhound-yigtwx.vercel.app',
+    site: 'https://reasonhound.vercel.app',
     base: '/',
     output: 'static',
     integrations: [sitemap({ filter: (page) => !/\/social\/?$/.test(page) })],
