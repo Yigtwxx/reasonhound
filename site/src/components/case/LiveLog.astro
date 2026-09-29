@@ -1,0 +1,316 @@
+---
+/* The lead at work, beside the hero: a small monitor pane replaying the demo
+   hunt in seven lines. The lead plans, dispatches recon and a hunter, the first
+   lead goes cold and the hunter pivots, red proves it, blue fails to break it,
+   and the arbiter's stamp comes down. Then it holds, clears and runs again.
+
+   The markup is the finished log, which is what a reader without script, or
+   one who asked for less motion, sees. The script replays it line by line and
+   loops; the pause button stops it (WCAG 2.2.2), and it also rests while the
+   pane is off screen or the tab is hidden. The replay is aria-hidden; a
+   screen reader gets the finished log once, as a list. */
+import Stamp from './Stamp.astro';
+
+type Tone = 'lead' | 'agent' | 'red' | 'blue' | 'arb';
+const lines: { who: string; tone: Tone; what: string; cold?: boolean }[] = [
+    { who: 'lead', tone: 'lead', what: 'plan · 142 files · 20 rounds' },
+    { who: '→ recon', tone: 'agent', what: '3 routes · 1 raw SQL path' },
+    { who: '→ hunter', tone: 'agent', what: 'users.py:48 · ORM binds it', cold: true },
+    { who: '→ hunter', tone: 'agent', what: 'export.py:112 · sort= in SQL' },
+    { who: '→ red', tone: 'red', what: 'pg_sleep(2) · 2.07 s · 5/5' },
+    { who: '→ blue', tone: 'blue', what: 'no allowlist · no bind' },
+    { who: 'arbiter', tone: 'arb', what: '' },
+];
+---
+
+<aside class="live" aria-label="A reasonhound run, replayed" data-live>
+    <header class="live__bar">
+        <span class="live__title">
+            <span class="live__dot" aria-hidden="true"></span>live · run 0142
+        </span>
+        <button class="live__pause" type="button" aria-pressed="false" hidden data-live-pause>
+            <span class="visually-hidden">Pause the replay</span>
+        </button>
+    </header>
+    <ol class="live__log">
+        {lines.map((l) => (
+            <li
+                class:list={['live__line', `live__line--${l.tone}`, { 'live__line--cold': l.cold }]}
+            >
+                <span class="live__who">{l.who}</span>
+                {l.what ? (
+                    <span class="live__what">
+                        {l.what}
+                        {l.cold ? <span class="live__cold"> · cold</span> : null}
+                    </span>
+                ) : (
+                    <span class="live__what live__verdict">
+                        <Stamp label="confirmed" tone="bad" tilt={-4} size="sm" land={false} />
+                    </span>
+                )}
+            </li>
+        ))}
+    </ol>
+</aside>
+
+<style>
+    .live {
+        width: min(100%, 23rem);
+        background: var(--tui-bg);
+        color: var(--tui-fg);
+        border-radius: 6px;
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        line-height: 1.5;
+        box-shadow:
+            0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
+            0 1.2rem 2.4rem -1rem color-mix(in srgb, var(--ink) 70%, transparent);
+        overflow: hidden;
+    }
+    .live__bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: 0.45rem 0.8rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--tui-fg) 12%, transparent);
+        color: var(--tui-dim);
+    }
+    .live__title {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+    }
+    .live__dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background: var(--tui-bad);
+    }
+    .live__log {
+        list-style: none;
+        margin: 0;
+        padding: 0.7rem 0.8rem 0.8rem;
+        display: grid;
+        gap: 0.15rem;
+        min-height: calc(7 * 1.5em + 6 * 0.15rem + 1.5rem);
+    }
+    .live__line {
+        display: grid;
+        grid-template-columns: 5.6em minmax(0, 1fr);
+        gap: 0.6em;
+        align-items: center;
+        white-space: nowrap;
+    }
+    .live__who {
+        color: var(--tui-dim);
+    }
+    .live__line--lead .live__who,
+    .live__line--arb .live__who {
+        color: var(--tui-accent);
+    }
+    .live__line--red .live__who {
+        color: var(--tui-bad);
+    }
+    .live__line--blue .live__who {
+        color: var(--tui-blue);
+    }
+    .live__what {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .live__line--cold .live__what {
+        color: var(--tui-dim);
+    }
+    .live__cold {
+        color: var(--tui-dim);
+    }
+    .live__verdict {
+        overflow: visible;
+        padding-block: 0.15rem;
+    }
+    .live__verdict :global(.stamp) {
+        --stamp-ink: var(--tui-bad);
+    }
+
+    /* The pause control: two bars, or a triangle once paused. */
+    .live__pause {
+        display: grid;
+        place-items: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        border: 0;
+        border-radius: 3px;
+        background: none;
+        color: var(--tui-dim);
+        cursor: pointer;
+    }
+    .live__pause:hover {
+        color: var(--tui-fg);
+    }
+    .live__pause::before {
+        content: '';
+        width: 0.5rem;
+        height: 0.6rem;
+        border-inline: 0.17rem solid currentColor;
+    }
+    .live__pause[aria-pressed='true']::before {
+        width: 0;
+        height: 0;
+        border-inline: 0;
+        border-block: 0.32rem solid transparent;
+        border-left: 0.5rem solid currentColor;
+        margin-left: 0.15rem;
+    }
+    .live__pause[hidden] {
+        display: none;
+    }
+
+    /* Replay states, set by the script below. */
+    .live.is-playing .live__dot {
+        animation: live-pulse 1.4s ease-in-out infinite;
+    }
+    .live.is-playing .live__log .live__line:not(.is-shown) {
+        visibility: hidden;
+    }
+    .live__line.is-typing .live__what::after {
+        content: '';
+        display: inline-block;
+        width: 0.55em;
+        height: 1em;
+        margin-left: 0.1em;
+        vertical-align: -0.15em;
+        background: var(--tui-fg);
+    }
+    .live.is-playing .live__verdict :global(.stamp) {
+        opacity: 0;
+        transform: rotate(var(--tilt)) scale(1.6);
+    }
+    .live.is-playing .live__line.is-shown .live__verdict :global(.stamp) {
+        opacity: 1;
+        transform: rotate(var(--tilt)) scale(1);
+        transition:
+            opacity 160ms ease,
+            transform 320ms var(--ease-stamp);
+    }
+    .live.is-clearing .live__log {
+        opacity: 0;
+        transition: opacity 400ms ease;
+    }
+    .live.is-paused .live__dot {
+        animation: none;
+        background: var(--tui-dim);
+    }
+    @keyframes live-pulse {
+        50% {
+            opacity: 0.35;
+        }
+    }
+</style>
+
+<script>
+    const CHAR_MS = 22;
+    const LINE_GAP_MS = 380;
+    const HOLD_MS = 5200;
+    const CLEAR_MS = 450;
+
+    for (const pane of document.querySelectorAll<HTMLElement>('[data-live]')) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
+        const log = pane.querySelector<HTMLElement>('.live__log');
+        const button = pane.querySelector<HTMLButtonElement>('[data-live-pause]');
+        if (!log || !button) continue;
+
+        // A screen reader keeps the finished log; the replay is for the eye.
+        const spoken = log.cloneNode(true) as HTMLElement;
+        spoken.className = 'visually-hidden';
+        spoken.removeAttribute('style');
+        log.after(spoken);
+        log.setAttribute('aria-hidden', 'true');
+
+        const lines = [...log.querySelectorAll<HTMLElement>('.live__line')].map((line) => {
+            const what = line.querySelector<HTMLElement>('.live__what:not(.live__verdict)');
+            return { line, what, text: what?.innerHTML ?? '' };
+        });
+
+        let paused = false;
+        let visible = true;
+        let timer = 0;
+        let step: () => void = () => undefined;
+        const wait = (ms: number, next: () => void): void => {
+            step = next;
+            if (!paused && visible && !document.hidden) timer = window.setTimeout(next, ms);
+        };
+        const resume = (): void => {
+            window.clearTimeout(timer);
+            if (!paused && visible && !document.hidden) timer = window.setTimeout(step, 120);
+        };
+
+        const run = (): void => {
+            pane.classList.remove('is-clearing');
+            pane.classList.add('is-playing');
+            for (const l of lines) {
+                l.line.classList.remove('is-shown', 'is-typing');
+                if (l.what) l.what.textContent = '';
+            }
+            let i = 0;
+            const nextLine = (): void => {
+                const l = lines[i];
+                if (!l) {
+                    wait(HOLD_MS, () => {
+                        pane.classList.add('is-clearing');
+                        wait(CLEAR_MS, run);
+                    });
+                    return;
+                }
+                l.line.classList.add('is-shown');
+                if (!l.what) {
+                    i += 1;
+                    wait(LINE_GAP_MS, nextLine);
+                    return;
+                }
+                // Typed as plain text, then the marked-up line is put back whole.
+                const plain = l.what.ownerDocument.createElement('span');
+                plain.innerHTML = l.text;
+                const full = plain.textContent ?? '';
+                let n = 0;
+                l.line.classList.add('is-typing');
+                const type = (): void => {
+                    n += 1;
+                    if (l.what) l.what.textContent = full.slice(0, n);
+                    if (n < full.length) {
+                        wait(CHAR_MS, type);
+                    } else {
+                        if (l.what) l.what.innerHTML = l.text;
+                        l.line.classList.remove('is-typing');
+                        i += 1;
+                        wait(LINE_GAP_MS, nextLine);
+                    }
+                };
+                wait(160, type);
+            };
+            wait(500, nextLine);
+        };
+
+        button.hidden = false;
+        button.addEventListener('click', () => {
+            paused = !paused;
+            button.setAttribute('aria-pressed', String(paused));
+            const label = button.querySelector('.visually-hidden');
+            if (label) label.textContent = paused ? 'Play the replay' : 'Pause the replay';
+            pane.classList.toggle('is-paused', paused);
+            if (paused) window.clearTimeout(timer);
+            else resume();
+        });
+        new IntersectionObserver(([entry]) => {
+            visible = entry?.isIntersecting ?? true;
+            if (visible) resume();
+            else window.clearTimeout(timer);
+        }).observe(pane);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) window.clearTimeout(timer);
+            else resume();
+        });
+        run();
+    }
+</script>

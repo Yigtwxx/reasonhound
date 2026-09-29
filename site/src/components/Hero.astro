@@ -4,7 +4,7 @@ import Halftone from './Halftone.astro';
 import InstallBox from './InstallBox.astro';
 import SketchUnderline from './sketch/SketchUnderline.astro';
 import Stamp from './case/Stamp.astro';
-import PinnedNote from './case/PinnedNote.astro';
+import LiveLog from './case/LiveLog.astro';
 import { version } from '../data/commands';
 ---
 
@@ -38,7 +38,7 @@ import { version } from '../data/commands';
         </div>
         <div class="hero__side">
             <div class="hero__note">
-                <PinnedNote />
+                <LiveLog />
             </div>
             <figure class="hero__figure">
                 <div class="hero__plate">
@@ -135,8 +135,7 @@ import { version } from '../data/commands';
         .hero__note {
             display: block;
             justify-self: end;
-            width: min(100%, 21rem);
-            margin-right: var(--space-5);
+            width: min(100%, 23rem);
         }
     }
     .hero__plate {
