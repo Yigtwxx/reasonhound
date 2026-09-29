@@ -7,7 +7,6 @@ import '../styles/global.css';
 import PencilDefs from '../components/sketch/PencilDefs.astro';
 import Halftone from '../components/Halftone.astro';
 import SketchUnderline from '../components/sketch/SketchUnderline.astro';
-import Stamp from '../components/case/Stamp.astro';
 ---
 
 <!doctype html>
@@ -20,24 +19,19 @@ import Stamp from '../components/case/Stamp.astro';
     <body>
         <PencilDefs />
         <div class="card">
+            <div class="plate">
+                <Halftone id="tempesta" tone="paper" loading="eager" sizes="1280px" />
+            </div>
+            <div class="wash"></div>
             <div class="copy">
                 <p class="kicker">reasonhound</p>
                 <h1 class="title">
-                    Follows the <SketchUnderline tone="amber">scent.</SketchUnderline>
+                    Follows the <SketchUnderline tone="ember">scent.</SketchUnderline>
                     <br />
                     Not the checklist.
                 </h1>
-                <p class="marginalia note">
-                    An AI security scanner that forms a hypothesis, probes it, and rethinks when the
-                    trail goes cold.
-                </p>
-                <p class="foot">bring your own model · runs on your machine · open source</p>
-            </div>
-            <div class="plate">
-                <Halftone id="diana" tone="ember" hover={false} loading="eager" sizes="620px" />
-                <span class="stamp-wrap">
-                    <Stamp label="on the scent" tone="bad" tilt={-6} size="lg" land={false} />
-                </span>
+                <p class="marginalia note">It rethinks when the trail goes cold.</p>
+                <p class="foot">bring your own model · open source</p>
             </div>
         </div>
     </body>
@@ -50,55 +44,81 @@ import Stamp from '../components/case/Stamp.astro';
         width: 1280px;
         height: 640px;
         overflow: hidden;
-        background: var(--ember);
     }
     body::before,
     body::after {
         display: none;
     }
+    /* The stag hunt from the foot of the page is the whole ground; the words sit
+       on a paper wash that opens towards the hounds. */
     .card {
-        --pen: var(--amber-soft);
         position: relative;
         width: 1280px;
         height: 640px;
-        display: grid;
-        grid-template-columns: 600px 1fr;
-        align-items: center;
-        gap: 40px;
-        padding: 0 64px;
+        overflow: hidden;
+        background: var(--paper);
+        color: var(--ink);
+    }
+    .plate {
+        position: absolute;
+        inset: 0;
+    }
+    .plate .halftone {
+        aspect-ratio: auto;
+        height: 100%;
+    }
+    .plate .halftone__img {
+        object-position: center 78%;
+    }
+    .wash {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to right,
+            var(--paper) 0%,
+            color-mix(in srgb, var(--paper) 94%, transparent) 36%,
+            color-mix(in srgb, var(--paper) 55%, transparent) 55%,
+            transparent 72%
+        );
+    }
+    .copy {
+        position: relative;
         box-sizing: border-box;
-        background: var(--ember);
-        color: var(--paper);
+        height: 100%;
+        max-width: 820px;
+        padding: 64px 72px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     .kicker {
         font-family: var(--font-mono);
-        font-size: 22px;
-        color: var(--amber-soft);
-        margin: 0 0 18px;
+        font-size: 24px;
+        color: var(--ember);
+        margin: 0 0 20px;
     }
     .title {
-        font-size: 76px;
-        line-height: 1.02;
-        color: var(--paper);
-        margin: 0 0 28px;
+        font-size: 88px;
+        font-weight: 360;
+        line-height: 0.98;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        margin: 0 0 32px;
+        font-variation-settings:
+            'opsz' 144,
+            'SOFT' 60,
+            'WONK' 1;
     }
     .note {
-        font-size: 22px;
-        max-width: 30ch;
+        font-size: 32px;
+        line-height: 1.2;
+        max-width: 20ch;
         margin: 0 0 28px;
     }
     .foot {
         font-family: var(--font-mono);
-        font-size: 16px;
-        color: var(--amber-soft);
+        font-size: 20px;
+        color: var(--ink-soft);
         margin: 0;
-    }
-    .plate {
-        position: relative;
-    }
-    .stamp-wrap {
-        position: absolute;
-        right: 5%;
-        top: 9%;
     }
 </style>
