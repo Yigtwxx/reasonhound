@@ -45,7 +45,7 @@ const dispatched = [...new Set([...leads, ...beats.flatMap((b) => b.agents)])];
                     </h3>
                     <p class="pack__note">{group.note}</p>
                 </header>
-                <ul class="pack__list">
+                <ul class="pack__list" id={`pack-list-${group.id}`}>
                     {group.agents.map((a) => (
                         <li
                             class="pack__agent"
@@ -218,6 +218,45 @@ const dispatched = [...new Set([...leads, ...beats.flatMap((b) => b.agents)])];
             transition-duration: 150ms;
         }
     }
+    /* A phone: scripts below fold every group but the lead's into its heading,
+       a button with the footer's own + caret. Title, count and note stay in
+       view, so the roster still reads as a whole; the names open on demand. */
+    :global(.pack__toggle) {
+        appearance: none;
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-3);
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+    :global(.pack__toggle) .pack__count {
+        margin-left: auto;
+    }
+    :global(.pack__toggle::after) {
+        content: '+';
+        font-family: var(--font-mono);
+        font-size: var(--step-0);
+        color: var(--ember);
+        transition: transform 160ms ease;
+    }
+    :global(.pack__toggle[aria-expanded='true']::after) {
+        transform: rotate(45deg);
+    }
+    :global(.pack__toggle:focus-visible) {
+        outline-offset: 4px;
+    }
+    .pack__group.is-folded .pack__list {
+        display: none;
+    }
+    .pack__group.is-folded .pack__head {
+        margin-bottom: 0;
+    }
     .pack__restricted {
         grid-column: 1 / -1;
         font-size: var(--step--1);
@@ -243,4 +282,40 @@ const dispatched = [...new Set([...leads, ...beats.flatMap((b) => b.agents)])];
         );
         observer.observe(roster);
     }
+
+    /* Folding on a phone. Each heading's contents move into a disclosure
+       button and back out when the screen widens, so a wide screen and a page
+       without script keep the plain headings and the whole roster open. */
+    const narrow = window.matchMedia('(max-width: 47.99rem)');
+    const groups = [
+        ...document.querySelectorAll<HTMLElement>('.pack__group:not(.pack__group--lead)'),
+    ];
+    const fold = (on: boolean): void => {
+        for (const group of groups) {
+            const title = group.querySelector<HTMLElement>('.pack__title');
+            const list = group.querySelector<HTMLElement>('.pack__list');
+            if (!title || !list) continue;
+            const toggle = title.querySelector<HTMLButtonElement>('.pack__toggle');
+            if (on && !toggle) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'pack__toggle';
+                button.setAttribute('aria-expanded', 'false');
+                button.setAttribute('aria-controls', list.id);
+                button.append(...title.childNodes);
+                button.addEventListener('click', () => {
+                    const open = button.getAttribute('aria-expanded') !== 'true';
+                    button.setAttribute('aria-expanded', String(open));
+                    group.classList.toggle('is-folded', !open);
+                });
+                title.append(button);
+                group.classList.add('is-folded');
+            } else if (!on && toggle) {
+                title.replaceChildren(...toggle.childNodes);
+                group.classList.remove('is-folded');
+            }
+        }
+    };
+    fold(narrow.matches);
+    narrow.addEventListener('change', (e) => fold(e.matches));
 </script>
