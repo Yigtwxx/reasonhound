@@ -8,7 +8,12 @@ import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full
 import interUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import monoUrl from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 import typeUrl from '@fontsource/special-elite/files/special-elite-latin-400-normal.woff2?url';
+import handUrl from '@fontsource/kalam/files/kalam-latin-400-normal.woff2?url';
+import handBoldUrl from '@fontsource/kalam/files/kalam-latin-700-normal.woff2?url';
 const preload = [frauncesUrl, interUrl, monoUrl, typeUrl];
+// The pinned note's hand shows only beside the hero on a wide screen; preloaded
+// there so its late swap does not shift the hero's side column.
+const preloadWide = [handUrl, handBoldUrl];
 // Browsers cache favicons apart from the page, so a hard reload does not refetch
 // them; bump this when the icon files change.
 const iconVersion = 3;
@@ -25,7 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 // The link preview is the GitHub social preview card (pages/social.astro).
 const ogImage = new URL(withBase('social-preview.jpg'), Astro.site);
 const IMAGE_ALT =
-    'reasonhound: Follows the scent. Not the checklist. A greyhound etching on a burnt-orange field.';
+    'reasonhound: Follows the scent. Not the checklist. Hounds and riders from a stag-hunt etching, in burnt orange on warm paper.';
 ---
 
 <!doctype html>
@@ -58,6 +63,16 @@ const IMAGE_ALT =
         {preload.map((href) => (
             <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
         ))}
+        {preloadWide.map((href) => (
+            <link
+                rel="preload"
+                as="font"
+                type="font/woff2"
+                href={href}
+                media="(min-width: 64rem)"
+                crossorigin
+            />
+        ))}
         <link rel="icon" href={icon('favicon.svg')} type="image/svg+xml" />
         <link rel="icon" href={icon('favicon-32.png')} sizes="32x32" type="image/png" />
         <link rel="apple-touch-icon" href={icon('apple-touch-icon.png')} />
@@ -85,11 +100,11 @@ const IMAGE_ALT =
         <slot />
         <script>
             import { initStrokeDraw } from '../scripts/stroke-draw';
-            import { initHalftoneHover } from '../scripts/halftone-hover';
             import { initStamps } from '../scripts/stamps';
+            import { initTypedExhibits } from '../scripts/typed-exhibits';
             initStrokeDraw();
-            initHalftoneHover();
             initStamps();
+            initTypedExhibits();
         </script>
     </body>
 </html>

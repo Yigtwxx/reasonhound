@@ -1,13 +1,23 @@
 ---
 /* The pack: every agent by name, grouped as the lead dispatches them, with the
    toolkit each one is limited to. The Ridinger plate is the picture for it: one
-   huntsman, one horn, many noses. */
+   huntsman, one horn, many noses.
+
+   When the roster scrolls into view the lead dispatches the demo hunt's pack
+   (the agents the four beats name, in the order the beats call them): each
+   name is marked off like a clerk working down a duty roster, then the agents
+   left unmarked settle back, the rest of the kennel. */
 import { packs, agentCount } from '../data/agents';
+import { beats } from '../data/loop';
 import Halftone from './Halftone.astro';
 import SketchArrow from './sketch/SketchArrow.astro';
+
+// The lead is marked first: it is the one that dispatches the rest.
+const leads = packs.find((g) => g.id === 'lead')?.agents.map((a) => a.name) ?? [];
+const dispatched = [...new Set([...leads, ...beats.flatMap((b) => b.agents)])];
 ---
 
-<div class="pack">
+<div class="pack" data-pack style={`--woken: ${dispatched.length}`}>
     <figure class="pack__figure">
         <Halftone id="par-force" tone="paper" drift sizes="(min-width: 64rem) 30vw, 92vw" />
         <figcaption class="caption pack__caption">
@@ -37,7 +47,15 @@ import SketchArrow from './sketch/SketchArrow.astro';
                 </header>
                 <ul class="pack__list">
                     {group.agents.map((a) => (
-                        <li class="pack__agent">
+                        <li
+                            class="pack__agent"
+                            data-woken={dispatched.includes(a.name) ? '' : undefined}
+                            style={
+                                dispatched.includes(a.name)
+                                    ? `--wake: ${dispatched.indexOf(a.name)}`
+                                    : undefined
+                            }
+                        >
                             <code class="pack__name">{a.name}</code>
                             <span class="pack__role">{a.role}</span>
                             <span class="pack__kit">{a.kit}</span>
@@ -166,6 +184,40 @@ import SketchArrow from './sketch/SketchArrow.astro';
         font-size: 0.72rem;
         color: var(--ink-mute);
     }
+    /* The dispatch. Before it runs (html.js, motion allowed) nothing looks
+       different, so a page without the script loses nothing. */
+    @media (prefers-reduced-motion: no-preference) {
+        .pack__name {
+            background-image: linear-gradient(var(--amber-wash), var(--amber-wash));
+            background-repeat: no-repeat;
+            background-position: 0 85%;
+            background-size: 0% 0.72em;
+        }
+        /* The lead's name is ember, so its mark is a warmer amber to show. */
+        .pack__group--lead .pack__name {
+            background-image: linear-gradient(
+                color-mix(in srgb, var(--amber) 38%, transparent),
+                color-mix(in srgb, var(--amber) 38%, transparent)
+            );
+        }
+        .pack.is-dispatched [data-woken] .pack__name {
+            background-size: 100% 0.72em;
+            transition: background-size 360ms var(--ease-pen) calc(var(--wake) * 110ms);
+        }
+        /* The kennel settles to the muted ink: quieter, still AA on paper. */
+        .pack__agent:not([data-woken]) :is(.pack__name, .pack__role) {
+            transition: color 700ms ease calc(var(--woken) * 110ms + 250ms);
+        }
+        .pack.is-dispatched .pack__agent:not([data-woken]) :is(.pack__name, .pack__role) {
+            color: var(--ink-mute);
+        }
+        /* Pointing at an agent wakes it. */
+        .pack.is-dispatched .pack__agent:not([data-woken]):hover :is(.pack__name, .pack__role) {
+            color: var(--ink);
+            transition-delay: 0ms;
+            transition-duration: 150ms;
+        }
+    }
     .pack__restricted {
         grid-column: 1 / -1;
         font-size: var(--step--1);
@@ -176,3 +228,19 @@ import SketchArrow from './sketch/SketchArrow.astro';
         margin: 0;
     }
 </style>
+
+<script>
+    const pack = document.querySelector<HTMLElement>('[data-pack]');
+    const roster = pack?.querySelector('.pack__groups');
+    if (pack && roster && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (!entries.some((e) => e.isIntersecting)) return;
+                pack.classList.add('is-dispatched');
+                observer.disconnect();
+            },
+            { rootMargin: '0px 0px -35% 0px' },
+        );
+        observer.observe(roster);
+    }
+</script>

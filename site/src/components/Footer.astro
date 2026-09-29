@@ -12,7 +12,7 @@ const unique = credits.filter((c) => (seen.has(c.page_url) ? false : (seen.add(c
 
 <footer class="footer" id="footer">
     <div class="footer__band" aria-hidden="true">
-        <Halftone id="tempesta" tone="ember" hover={false} drift="--footer-plate" sizes="100vw" />
+        <Halftone id="tempesta" tone="ember" drift="--footer-plate" sizes="100vw" />
     </div>
     <div class="page footer__grid">
         <div class="footer__col">
@@ -163,11 +163,16 @@ const unique = credits.filter((c) => (seen.has(c.page_url) ? false : (seen.add(c
     .footer__links {
         list-style: none;
         padding: 0;
-        margin: var(--space-4) 0 0;
+        margin: var(--space-3) 0 0;
         display: flex;
         flex-wrap: wrap;
-        gap: var(--space-4);
+        gap: 0 var(--space-4);
         font-size: var(--step--1);
+    }
+    /* A taller hit area than the text, so each link is an easy tap. */
+    .footer__links a {
+        display: inline-block;
+        padding-block: 0.35rem;
     }
     .footer__credits {
         font-size: var(--step--1);

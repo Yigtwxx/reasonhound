@@ -1,8 +1,9 @@
 ---
 /* What it leaves behind: the Reasonhound/ folder as a tree, one finding file
    opened beside it, the audit trail under it, and what a second run does. */
-import Halftone from './Halftone.astro';
 import Stamp from './case/Stamp.astro';
+import Polaroid from './case/Polaroid.astro';
+import EvidenceTag from './case/EvidenceTag.astro';
 import SketchBox from './sketch/SketchBox.astro';
 import SketchArrow from './sketch/SketchArrow.astro';
 
@@ -17,6 +18,45 @@ const tree = [
     { name: 'audit.log', note: 'every probe, one redacted JSON line each', depth: 1 },
     { name: '.memory/', note: 'local only, gitignored', depth: 1 },
 ];
+
+// The same finding as the file on disk: what the rendered view above is made from.
+const source = `---
+id: 001
+status: confirmed
+severity: critical
+cvss: 9.1
+confidence: high
+location: app/api/export.py:112
+endpoint: GET /api/export?sort=
+found_by: injection-hunter (round 7, pivot from users.py:48)
+timestamp: 2026-09-29T10:14:07Z
+---
+
+# SQL injection in the export sort parameter
+
+## Data flow
+
+\`request.query["sort"]\` → \`build_order()\` → f-string
+\`ORDER BY {sort}\` → \`conn.execute()\`
+
+## Proof (harmless)
+
+\`\`\`http
+GET /api/export?sort=(CASE+WHEN+1=1+THEN+pg_sleep(2)+END)
+→ 200 OK in 2.07 s   (baseline 0.03 s · 5 of 5 runs)
+\`\`\`
+
+## Reasoning
+
+- **red** the sort value reaches SQL text unbound; timing confirms it
+- **blue** looked for an allowlist, a bind and a WAF rule; found none
+- **arbiter** confirmed · confidence high
+
+## Fix
+
+Map \`sort\` through an allowlist of column names, or build the
+clause with \`sqlalchemy.column()\`. Never format it into the query.
+`;
 
 const merge = [
     { label: 'New', tone: 'bad' as const, what: 'a finding this run is the first to see' },
@@ -42,67 +82,111 @@ const merge = [
                 </li>
             ))}
         </ul>
-        <figure class="report__figure">
-            <Halftone id="bloodhound" tone="paper" hover={false} vignette sizes="18rem" />
-            <figcaption class="caption">
-                After Samuel Howitt, <cite>Blood Hounds</cite>, 1828. They bring back what they
-                found, and where.
-            </figcaption>
-        </figure>
+        <Polaroid
+            id="bloodhound"
+            label="the ones who bring it back"
+            tilt={-3}
+            sizes="18rem"
+            class="report__figure"
+        >
+            After Samuel Howitt, <cite>Blood Hounds</cite>, 1828. They bring back what they found,
+            and where.
+        </Polaroid>
     </div>
 
-    <SketchBox as="article" padding="lg" draw fill class="report__doc">
+    <SketchBox as="article" padding="lg" draw fill class="report__doc" data-finding>
+        <EvidenceTag no="001" note="sqli · export" />
+        <div class="report__tabs" role="tablist" aria-label="View the finding as" hidden>
+            <button
+                type="button"
+                role="tab"
+                id="finding-tab-read"
+                aria-controls="finding-read"
+                aria-selected="true"
+            >
+                rendered
+            </button>
+            <button
+                type="button"
+                role="tab"
+                id="finding-tab-src"
+                aria-controls="finding-src"
+                aria-selected="false"
+                tabindex="-1"
+            >
+                source .md
+            </button>
+        </div>
         <p class="report__path">findings/001-critical-sqli-api-export.md</p>
-        <h3 class="report__title">SQL injection in the export sort parameter</h3>
-        <p class="report__stamps">
-            <Stamp label="confirmed" tone="bad" tilt={-3} />
-            <span class="report__sev">critical · CVSS 9.1 · confidence high</span>
-        </p>
-        <dl class="report__meta">
-            <div>
-                <dt>where</dt>
-                <dd>
-                    <code>app/api/export.py:112</code> · <code>GET /api/export?sort=</code>
-                </dd>
-            </div>
-            <div>
-                <dt>data flow</dt>
-                <dd>
-                    <code>request.query["sort"]</code> → <code>build_order()</code> → f-string{' '}
-                    <code>
-                        ORDER BY {'{'}sort{'}'}
-                    </code>{' '}
-                    → <code>conn.execute()</code>
-                </dd>
-            </div>
-            <div>
-                <dt>found by</dt>
-                <dd>
-                    injection-hunter, round 7, after a pivot from <code>users.py:48</code>
-                </dd>
-            </div>
-        </dl>
-        <p class="report__h">Proof (harmless)</p>
-        <pre class="report__poc"><code>GET /api/export?sort=(CASE+WHEN+1=1+THEN+pg_sleep(2)+END)
+        <div
+            id="finding-read"
+            class="report__panel"
+            role="tabpanel"
+            aria-labelledby="finding-tab-read"
+            tabindex="0"
+        >
+            <h3 class="report__title">SQL injection in the export sort parameter</h3>
+            <p class="report__stamps">
+                <Stamp label="confirmed" tone="bad" tilt={-3} />
+                <span class="report__sev">critical · CVSS 9.1 · confidence high</span>
+            </p>
+            <dl class="report__meta">
+                <div>
+                    <dt>where</dt>
+                    <dd>
+                        <code>app/api/export.py:112</code> · <code>GET /api/export?sort=</code>
+                    </dd>
+                </div>
+                <div>
+                    <dt>data flow</dt>
+                    <dd>
+                        <code>request.query["sort"]</code> → <code>build_order()</code> → f-string{' '}
+                        <code>
+                            ORDER BY {'{'}sort{'}'}
+                        </code>{' '}
+                        → <code>conn.execute()</code>
+                    </dd>
+                </div>
+                <div>
+                    <dt>found by</dt>
+                    <dd>
+                        injection-hunter, round 7, after a pivot from <code>users.py:48</code>
+                    </dd>
+                </div>
+            </dl>
+            <p class="report__h">Proof (harmless)</p>
+            <pre class="report__poc"><code>GET /api/export?sort=(CASE+WHEN+1=1+THEN+pg_sleep(2)+END)
 → 200 OK in 2.07 s   (baseline 0.03 s · 5 of 5 runs)</code></pre>
-        <p class="report__h">Reasoning</p>
-        <ul class="report__votes">
-            <li>
-                <b class="v-red">red</b> the sort value reaches SQL text unbound; timing confirms it
-            </li>
-            <li>
-                <b class="v-blue">blue</b> looked for an allowlist, a bind and a WAF rule; found
-                none
-            </li>
-            <li>
-                <b class="v-arb">arbiter</b> confirmed · confidence high
-            </li>
-        </ul>
-        <p class="report__h">Fix</p>
-        <p class="report__fix">
-            Map <code>sort</code> through an allowlist of column names, or build the clause with{' '}
-            <code>sqlalchemy.column()</code>. Never format it into the query.
-        </p>
+            <p class="report__h">Reasoning</p>
+            <ul class="report__votes">
+                <li>
+                    <b class="v-red">red</b> the sort value reaches SQL text unbound; timing
+                    confirms it
+                </li>
+                <li>
+                    <b class="v-blue">blue</b> looked for an allowlist, a bind and a WAF rule; found
+                    none
+                </li>
+                <li>
+                    <b class="v-arb">arbiter</b> confirmed · confidence high
+                </li>
+            </ul>
+            <p class="report__h">Fix</p>
+            <p class="report__fix">
+                Map <code>sort</code> through an allowlist of column names, or build the clause with{' '}
+                <code>sqlalchemy.column()</code>. Never format it into the query.
+            </p>
+        </div>
+        <div
+            id="finding-src"
+            class="report__panel"
+            role="tabpanel"
+            aria-labelledby="finding-tab-src"
+            tabindex="0"
+            hidden
+        >
+            <pre class="report__src"><code>{source}</code></pre>
+        </div>
     </SketchBox>
 </div>
 
@@ -128,6 +212,44 @@ const merge = [
         </dl>
     </div>
 </div>
+
+<script>
+    /* Two views of one finding: the rendered file and its Markdown source. The
+       tabs only appear once this runs; without it the rendered view stands. */
+    for (const doc of document.querySelectorAll<HTMLElement>('[data-finding]')) {
+        const list = doc.querySelector<HTMLElement>('[role="tablist"]');
+        const tabs = [...doc.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+        if (!list || tabs.length === 0) continue;
+        const select = (tab: HTMLButtonElement, focus = false): void => {
+            for (const t of tabs) {
+                const on = t === tab;
+                t.setAttribute('aria-selected', String(on));
+                t.tabIndex = on ? 0 : -1;
+                const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
+                if (panel) panel.hidden = !on;
+            }
+            if (focus) tab.focus();
+        };
+        list.hidden = false;
+        tabs.forEach((tab, i) => {
+            tab.addEventListener('click', () => select(tab));
+            tab.addEventListener('keydown', (e) => {
+                const last = tabs.length - 1;
+                const to: Record<string, number> = {
+                    ArrowRight: (i + 1) % tabs.length,
+                    ArrowLeft: (i + last) % tabs.length,
+                    Home: 0,
+                    End: last,
+                };
+                const at = to[e.key];
+                if (at === undefined) return;
+                e.preventDefault();
+                const next = tabs[at];
+                if (next) select(next, true);
+            });
+        });
+    }
+</script>
 
 <style>
     .report {
@@ -172,12 +294,56 @@ const merge = [
     .report__node--open .report__node-note {
         color: var(--ember);
     }
-    .report__figure {
-        margin: var(--space-6) 0 0;
-        max-width: 18rem;
+    .report__left :global(.report__figure) {
+        margin-top: var(--space-7);
+        max-width: 17rem;
     }
     .report__doc {
         font-size: var(--step--1);
+    }
+    /* Editor tabs above the file: a quiet underline marks the one in view. */
+    .report__tabs {
+        display: flex;
+        gap: var(--space-4);
+        margin: 0 0 var(--space-3);
+        border-bottom: 1px solid var(--paper-line);
+    }
+    .report__tabs[hidden] {
+        display: none;
+    }
+    .report__tabs button {
+        appearance: none;
+        background: none;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        padding: 0.3em 0 0.45em;
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        color: var(--ink-mute);
+        cursor: pointer;
+    }
+    .report__tabs button:hover {
+        color: var(--ink);
+    }
+    .report__tabs button[aria-selected='true'] {
+        color: var(--ember);
+        border-bottom-color: var(--ember);
+    }
+    .report__src {
+        margin: 0;
+        padding: var(--space-4);
+        background: var(--paper);
+        border-radius: 3px;
+        font-size: 0.8rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        color: var(--ink-soft);
+    }
+    .report__src code {
+        background: none;
+        padding: 0;
     }
     .report__path {
         font-family: var(--font-mono);

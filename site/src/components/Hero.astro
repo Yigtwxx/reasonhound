@@ -4,6 +4,7 @@ import Halftone from './Halftone.astro';
 import InstallBox from './InstallBox.astro';
 import SketchUnderline from './sketch/SketchUnderline.astro';
 import Stamp from './case/Stamp.astro';
+import PinnedNote from './case/PinnedNote.astro';
 import { version } from '../data/commands';
 ---
 
@@ -35,24 +36,30 @@ import { version } from '../data/commands';
                 to a provider you did not pick. macOS, Windows, Linux.
             </p>
         </div>
-        <figure class="hero__figure">
-            <div class="hero__plate">
-                <Halftone
-                    id="diana"
-                    tone="ember"
-                    loading="eager"
-                    drift="page"
-                    sizes="(min-width: 64rem) 46vw, 92vw"
-                />
-                <span class="hero__stamp">
-                    <Stamp label="on the scent" tone="bad" tilt={-6} size="lg" />
-                </span>
+        <div class="hero__side">
+            <div class="hero__note">
+                <PinnedNote />
             </div>
-            <figcaption class="caption hero__caption">
-                Gerardus Emaus de Micault, <cite>Hazewindhond Diana</cite>, 1819. A sighthound,
-                pointed at the horizon.
-            </figcaption>
-        </figure>
+            <figure class="hero__figure">
+                <div class="hero__plate">
+                    <Halftone
+                        id="diana"
+                        tone="ember"
+                        loading="eager"
+                        fetchpriority="high"
+                        drift="page"
+                        sizes="(min-width: 64rem) 46vw, 92vw"
+                    />
+                    <span class="hero__stamp">
+                        <Stamp label="on the scent" tone="bad" tilt={-6} size="lg" />
+                    </span>
+                </div>
+                <figcaption class="caption hero__caption">
+                    Gerardus Emaus de Micault, <cite>Hazewindhond Diana</cite>, 1819. A sighthound,
+                    pointed at the horizon.
+                </figcaption>
+            </figure>
+        </div>
     </div>
 </section>
 
@@ -114,6 +121,23 @@ import { version } from '../data/commands';
     }
     .hero__figure {
         margin: 0;
+    }
+    /* The note fills the field above the plate, so it only appears once the
+       plate has a column of its own; in one column the hero is long enough. */
+    .hero__note {
+        display: none;
+    }
+    @media (min-width: 64rem) {
+        .hero__side {
+            display: grid;
+            gap: var(--space-6);
+        }
+        .hero__note {
+            display: block;
+            justify-self: end;
+            width: min(100%, 21rem);
+            margin-right: var(--space-5);
+        }
     }
     .hero__plate {
         position: relative;

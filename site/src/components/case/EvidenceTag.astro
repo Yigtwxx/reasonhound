@@ -1,0 +1,121 @@
+---
+/* A manila evidence tag tied to a finding: clipped corners at the eyelet end, a
+   reinforcing ring round the hole, the string looped back over the file's top
+   edge. Typed header, the number in pen. It hangs over the top right of the
+   nearest positioned box and repeats what the file already says, so it is
+   hidden from assistive tech. */
+interface Props {
+    no: string;
+    note: string;
+    /** Degrees off square. */
+    tilt?: number;
+}
+const { no, note, tilt = 5 } = Astro.props;
+---
+
+<div class="tag" style={`--tilt: ${tilt}deg`} aria-hidden="true">
+    <svg class="tag__string" viewBox="0 0 64 40" width="64" height="40">
+        <path d="M60 25C48 24 36 16 22 13C14 11.4 7 13 3 18"></path>
+        <path d="M60 25C50 28 40 30 30 33" class="tag__string-back"></path>
+    </svg>
+    <div class="tag__card">
+        <span class="tag__eyelet"></span>
+        <p class="tag__head">Evidence</p>
+        <p class="tag__no">No. {no}</p>
+        <p class="tag__note">{note}</p>
+    </div>
+</div>
+
+<style>
+    .tag {
+        --manila: color-mix(in srgb, var(--amber) 26%, #eadcbc);
+        position: absolute;
+        z-index: 2;
+        top: calc(var(--space-6) * -1 - 1rem);
+        right: 0;
+        rotate: var(--tilt);
+        transform-origin: 0 50%;
+        pointer-events: none;
+        /* A shadow on the clipped card would be clipped with it, so it is cast
+           from here, around the card's cut outline. */
+        filter: drop-shadow(
+            0.15rem 0.35rem 0.35rem color-mix(in srgb, var(--ink) 24%, transparent)
+        );
+    }
+    .tag__card {
+        position: relative;
+        width: 7.4rem;
+        padding: 0.45rem 0.7rem 0.5rem 1.9rem;
+        background:
+            /* a faint fibre in the card */
+            repeating-linear-gradient(
+                95deg,
+                transparent 0 3px,
+                color-mix(in srgb, var(--amber-deep) 4%, transparent) 3px 4px
+            ),
+            var(--manila);
+        /* a shipping tag: the eyelet end has its corners cut */
+        clip-path: polygon(
+            1.1rem 0,
+            100% 0,
+            100% 100%,
+            1.1rem 100%,
+            0 calc(100% - 1.1rem),
+            0 1.1rem
+        );
+    }
+    .tag__eyelet {
+        position: absolute;
+        left: 0.55rem;
+        top: 50%;
+        width: 0.8rem;
+        height: 0.8rem;
+        translate: 0 -50%;
+        border-radius: 50%;
+        background: var(--paper-deep);
+        box-shadow:
+            0 0 0 0.16rem color-mix(in srgb, var(--amber-deep) 35%, var(--manila)),
+            inset 0.05rem 0.08rem 0.12rem color-mix(in srgb, var(--ink) 40%, transparent);
+    }
+    .tag__head {
+        margin: 0;
+        font-family: var(--font-type);
+        font-size: 0.66rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ember-deep);
+        border-bottom: 1px solid color-mix(in srgb, var(--ember-deep) 55%, transparent);
+        padding-bottom: 0.1rem;
+    }
+    .tag__no {
+        margin: 0.1rem 0 0;
+        font-family: var(--font-hand);
+        font-weight: 700;
+        font-size: 1.15rem;
+        line-height: 1.2;
+        color: #26344f;
+    }
+    .tag__note {
+        margin: 0;
+        font-family: var(--font-hand);
+        font-size: 0.78rem;
+        line-height: 1.2;
+        color: color-mix(in srgb, #26344f 80%, var(--manila));
+    }
+    /* The string: out of the eyelet, over the file's edge and back under it. */
+    .tag__string {
+        position: absolute;
+        left: calc(-64px + 1rem);
+        top: calc(50% - 25px);
+        overflow: visible;
+    }
+    .tag__string path {
+        fill: none;
+        stroke: #c9b489;
+        stroke-width: 1.4;
+        stroke-linecap: round;
+    }
+    .tag__string .tag__string-back {
+        opacity: 0.6;
+    }
+</style>

@@ -1,0 +1,217 @@
+---
+/* The checklist, the crawler and the hunt as one ledger: a row per question,
+   a column per kind of tool, reasonhound's column washed in amber like a line
+   run over with a highlighter. The rows where the other two win are kept, under
+   their own heading. On a phone each row becomes a card; the explicit roles keep
+   it a table for a screen reader after `display` changes. */
+import { approaches, rows } from '../data/compare';
+
+const plain = rows.filter((r) => !r.fair);
+const fair = rows.filter((r) => r.fair);
+---
+
+<div class="compare">
+    <table class="compare__table" role="table">
+        <caption class="visually-hidden">
+            How reasonhound compares with a rule scanner and a crawler
+        </caption>
+        <thead role="rowgroup">
+            <tr role="row">
+                <td class="compare__corner" role="cell"></td>
+                {approaches.map((a) => (
+                    <th
+                        scope="col"
+                        role="columnheader"
+                        class:list={['compare__col', { 'compare__col--hound': a.id === 'hound' }]}
+                    >
+                        <span class="compare__name">{a.name}</span>
+                        <span class="compare__kind">{a.kind}</span>
+                    </th>
+                ))}
+            </tr>
+        </thead>
+        {[plain, fair].map((group, g) => (
+            <tbody role="rowgroup" class:list={{ compare__fair: g === 1 }}>
+                {g === 1 ? (
+                    <tr role="row" class="compare__divider">
+                        <th scope="colgroup" colspan="4" role="columnheader">
+                            Where the other two are the better tool
+                        </th>
+                    </tr>
+                ) : null}
+                {group.map((r) => (
+                    <tr role="row" class="compare__row">
+                        <th scope="row" role="rowheader" class="compare__label">
+                            {r.label}
+                        </th>
+                        {approaches.map((a) => (
+                            <td
+                                role="cell"
+                                data-label={a.name}
+                                class:list={[
+                                    'compare__cell',
+                                    { 'compare__cell--hound': a.id === 'hound' },
+                                ]}
+                            >
+                                {r.cells[a.id]}
+                            </td>
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+        ))}
+    </table>
+</div>
+
+<style>
+    .compare {
+        --hound-wash: color-mix(in srgb, var(--amber) 16%, var(--paper));
+    }
+    .compare__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--step--1);
+    }
+
+    /* A phone: every row a card, its label on top and each tool's answer under
+       its name. */
+    .compare__table thead {
+        display: none;
+    }
+    .compare__table,
+    .compare__table tbody,
+    .compare__table tr,
+    .compare__table th,
+    .compare__table td {
+        display: block;
+    }
+    .compare__row {
+        padding-block: var(--space-4);
+        border-top: 1px dashed var(--paper-line);
+    }
+    .compare__label {
+        font-family: var(--font-display);
+        font-size: var(--step-1);
+        font-weight: 500;
+        text-align: left;
+        margin-bottom: var(--space-2);
+    }
+    .compare__table .compare__cell {
+        display: grid;
+        grid-template-columns: 8.5rem minmax(0, 1fr);
+        gap: var(--space-3);
+        padding: 0.35em 0;
+        color: var(--ink-soft);
+    }
+    .compare__cell::before {
+        content: attr(data-label);
+        font-family: var(--font-type);
+        color: var(--ink-mute);
+    }
+    .compare__table .compare__cell--hound {
+        color: var(--ink);
+        background: var(--hound-wash);
+        padding-inline: var(--space-2);
+        margin-inline: calc(var(--space-2) * -1);
+        border-radius: 2px;
+    }
+    .compare__cell--hound::before {
+        color: var(--ember);
+    }
+    .compare__divider th {
+        font-family: var(--font-type);
+        font-weight: 400;
+        font-size: var(--step--1);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-align: left;
+        color: var(--ember);
+        padding: var(--space-6) 0 var(--space-2);
+    }
+
+    /* Wide enough for the ledger: a real grid of rows and columns. */
+    @media (min-width: 48rem) {
+        .compare__table {
+            display: table;
+            table-layout: fixed;
+        }
+        .compare__table thead {
+            display: table-header-group;
+        }
+        .compare__table tbody {
+            display: table-row-group;
+        }
+        .compare__table tr {
+            display: table-row;
+        }
+        .compare__table th,
+        .compare__table td,
+        .compare__table .compare__cell {
+            display: table-cell;
+        }
+        .compare__corner {
+            width: 20%;
+        }
+        .compare__col {
+            text-align: left;
+            vertical-align: bottom;
+            padding: 0 var(--space-4) var(--space-3);
+            border-bottom: 1.5px solid var(--ink);
+        }
+        .compare__name {
+            display: block;
+            font-family: var(--font-display);
+            font-size: var(--step-1);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+        .compare__kind {
+            display: block;
+            margin-top: 0.3em;
+            font-family: var(--font-type);
+            font-weight: 400;
+            color: var(--ink-mute);
+        }
+        .compare__col--hound {
+            background: var(--hound-wash);
+            border-bottom-color: var(--ember);
+            padding-top: var(--space-4);
+        }
+        .compare__col--hound .compare__name {
+            color: var(--ember);
+        }
+        .compare__row {
+            border-top: 0;
+        }
+        .compare__label,
+        .compare__table .compare__cell {
+            vertical-align: top;
+            padding: var(--space-3) var(--space-4) var(--space-3) 0;
+            border-bottom: 1px dashed var(--paper-line);
+        }
+        .compare__label {
+            font-size: var(--step-0);
+            margin: 0;
+        }
+        .compare__table .compare__cell {
+            padding-left: var(--space-4);
+            margin: 0;
+            border-radius: 0;
+        }
+        .compare__table .compare__cell::before {
+            content: none;
+        }
+        .compare__table .compare__cell--hound {
+            padding-inline: var(--space-4);
+            margin-inline: 0;
+        }
+        .compare__divider th {
+            padding: var(--space-6) 0 var(--space-3);
+            border-bottom: 1.5px solid var(--ink);
+        }
+    }
+    /* The fair rows read a shade quieter: true, but not the case being made. */
+    .compare__fair .compare__cell--hound {
+        color: var(--ink-soft);
+    }
+</style>

@@ -48,6 +48,7 @@
     --font-body: 'Inter Variable', system-ui, -apple-system, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
     --font-type: 'Special Elite', 'American Typewriter', 'Courier New', monospace;
+    --font-hand: 'Kalam', 'Bradley Hand', 'Segoe Print', cursive; /* the pinned note only */
 
     /* fluid type scale: ratio 1.2 at 360px → 1.25 at 1280px */
     --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);

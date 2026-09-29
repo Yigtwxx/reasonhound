@@ -1,7 +1,9 @@
 ---
 /* A secret as the model sees it: a black bar in the file, the redaction label
    underneath. Hover or focus lifts the bar to show what the egress redactor
-   wrote in its place — never the secret itself, which the page does not have. */
+   wrote in its place — never the secret itself, which the page does not have.
+   When the file scrolls into view the bars are laid down one after another, a
+   marker pass over each value: egress-redactor at work before anything leaves. */
 interface Props {
     /** The label egress-redactor writes, e.g. "jwt" → [REDACTED:jwt]. */
     label: string;
@@ -45,4 +47,45 @@ const { label, chars = 18 } = Astro.props;
     .redact:focus-visible .redact__bar {
         transform: scaleX(0.04);
     }
+    /* Only hidden under html.js with motion allowed, so a failed script or a
+       reader who asked for less motion sees every bar already in place. */
+    @media (prefers-reduced-motion: no-preference) {
+        :global(html.js) .redact:not(.is-marked) .redact__bar {
+            transform: scaleX(0);
+            transition: none;
+        }
+        .redact.is-marked .redact__bar {
+            transition: transform 520ms var(--ease-pen) var(--mark-delay, 0ms);
+        }
+        .redact.is-marked:hover .redact__bar,
+        .redact.is-marked:focus-visible .redact__bar {
+            transition-delay: 0ms;
+        }
+    }
 </style>
+
+<script>
+    const PASS_MS = 260;
+    const bars = Array.from(document.querySelectorAll<HTMLElement>('.redact'));
+    const mark = (el: HTMLElement): void => {
+        const group = el.parentElement?.closest('[aria-label]') ?? document.body;
+        const index = Array.from(group.querySelectorAll('.redact')).indexOf(el);
+        el.style.setProperty('--mark-delay', `${240 + Math.max(0, index) * PASS_MS}ms`);
+        el.classList.add('is-marked');
+    };
+    if (!('IntersectionObserver' in window)) {
+        bars.forEach(mark);
+    } else {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    if (!entry.isIntersecting) continue;
+                    mark(entry.target as HTMLElement);
+                    observer.unobserve(entry.target);
+                }
+            },
+            { threshold: 1, rootMargin: '0px 0px -15% 0px' },
+        );
+        bars.forEach((b) => observer.observe(b));
+    }
+</script>

@@ -8,6 +8,8 @@
 @import '@fontsource/ibm-plex-mono/400-italic.css';
 @import '@fontsource/ibm-plex-mono/500.css';
 @import '@fontsource/special-elite/400.css';
+@import '@fontsource/kalam/latin-400.css';
+@import '@fontsource/kalam/latin-700.css';
 
 *,
 *::before,
@@ -227,6 +229,25 @@ svg {
     width: 2.2em;
     height: 0;
     border-top: 2px dashed currentColor;
+}
+/* scripts/typed-exhibits.ts: the label is typed in behind a block caret. */
+.exhibit__typed {
+    min-height: 1lh;
+}
+.exhibit__typed.is-typing::after {
+    content: '';
+    display: inline-block;
+    width: 0.62em;
+    height: 1em;
+    margin-left: 0.12em;
+    vertical-align: -0.12em;
+    background: currentColor;
+    animation: exhibit-caret 520ms steps(1, end) infinite;
+}
+@keyframes exhibit-caret {
+    50% {
+        opacity: 0;
+    }
 }
 
 /* stroke drawing: paths are hidden until in view, then drawn like a pen.

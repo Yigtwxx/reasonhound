@@ -5,6 +5,7 @@ import { mark } from '../lib/mark';
 import SketchRule from './sketch/SketchRule.astro';
 import SketchArrow from './sketch/SketchArrow.astro';
 import Stamp from './case/Stamp.astro';
+import Polaroid from './case/Polaroid.astro';
 ---
 
 <div class="limits">
@@ -31,6 +32,16 @@ import Stamp from './case/Stamp.astro';
                 it stands.
             </p>
         </div>
+        <Polaroid
+            id="eustace-seated"
+            label="lost the scent here"
+            tilt={3}
+            tape="right"
+            sizes="(min-width: 64rem) 16rem, 60vw"
+            class="limits__plate"
+        >
+            Albrecht Dürer, <cite>Saint Eustace</cite> (detail). It sits down where the scent stops.
+        </Polaroid>
     </aside>
 </div>
 
@@ -101,5 +112,16 @@ import Stamp from './case/Stamp.astro';
     }
     .limits__note .marginalia {
         margin: 0;
+    }
+    /* The seated hound is a tall print: kept small under the list on a phone,
+       full size in the margin column beside it. */
+    .limits__aside :global(.limits__plate) {
+        width: min(100%, 10.5rem);
+        margin-top: var(--space-3);
+    }
+    @media (min-width: 64rem) {
+        .limits__aside :global(.limits__plate) {
+            width: min(100%, 14rem);
+        }
     }
 </style>

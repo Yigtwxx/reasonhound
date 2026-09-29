@@ -1,0 +1,110 @@
+---
+/* An engraving kept as an instant print in the file: a white frame deeper at
+   the foot, a line in pen on that foot, a strip of tape across the top, a few
+   degrees off square. It stays still: a print in a file does not drift. The
+   credit goes in the default slot as the figure's caption, under the print. */
+import Halftone from '../Halftone.astro';
+import type { ImageId } from '../../data/images.generated';
+
+interface Props {
+    id: ImageId;
+    /** The line written on the print's foot. */
+    label: string;
+    /** Degrees off square. */
+    tilt?: number;
+    /** Which way the tape strip leans. */
+    tape?: 'left' | 'right';
+    sizes?: string;
+    class?: string;
+}
+const { id, label, tilt = -3, tape = 'left', sizes = '18rem', class: className } = Astro.props;
+---
+
+<figure class:list={['polaroid', `polaroid--tape-${tape}`, className]} style={`--tilt: ${tilt}deg`}>
+    <div class="polaroid__print">
+        <span class="polaroid__tape" aria-hidden="true"></span>
+        <div class="polaroid__photo">
+            <Halftone id={id} tone="paper" sizes={sizes} />
+        </div>
+        <p class="polaroid__label" aria-hidden="true">
+            {label}
+        </p>
+    </div>
+    <figcaption class="caption polaroid__caption">
+        <slot />
+    </figcaption>
+</figure>
+
+<style>
+    .polaroid {
+        margin: 0;
+    }
+    .polaroid__print {
+        position: relative;
+        padding: 0.6rem 0.6rem 0;
+        background: #fdfaf2;
+        transform: rotate(var(--tilt));
+        /* the print's own edge, then the soft shadow of a card lying on paper */
+        box-shadow:
+            0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent),
+            0 1px 2px color-mix(in srgb, var(--ink) 18%, transparent),
+            0.35rem 0.6rem 1rem color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    /* A dithered plate is ink on transparent: behind it, the print's own
+       slightly deeper cream, faintly vignetted like an old photograph. */
+    .polaroid__photo {
+        background:
+            radial-gradient(
+                ellipse 75% 70% at 50% 45%,
+                transparent 55%,
+                color-mix(in srgb, var(--amber-deep) 12%, transparent)
+            ),
+            #efe4ca;
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
+    }
+    .polaroid__label {
+        margin: 0;
+        padding: 0.45rem 0.2rem 0.6rem;
+        min-height: 2.6rem;
+        font-family: var(--font-hand);
+        font-size: 1rem;
+        line-height: 1.3;
+        color: #26344f;
+        rotate: -1deg;
+    }
+    /* Matte tape: translucent, a little yellow, with torn ends. */
+    .polaroid__tape {
+        position: absolute;
+        z-index: 1;
+        top: -0.8rem;
+        left: 50%;
+        width: 5.5rem;
+        height: 1.6rem;
+        translate: -50% 0;
+        rotate: -6deg;
+        background: color-mix(in srgb, var(--amber-wash) 78%, transparent);
+        box-shadow: 0 1px 1px color-mix(in srgb, var(--ink) 8%, transparent);
+        clip-path: polygon(
+            0 8%,
+            4% 0,
+            8% 12%,
+            12% 2%,
+            100% 0,
+            96% 20%,
+            100% 38%,
+            95% 58%,
+            100% 80%,
+            97% 100%,
+            0 100%,
+            3% 78%,
+            0 56%,
+            4% 32%
+        );
+    }
+    .polaroid--tape-right .polaroid__tape {
+        rotate: 5deg;
+    }
+    .polaroid__caption {
+        margin-top: var(--space-4);
+    }
+</style>

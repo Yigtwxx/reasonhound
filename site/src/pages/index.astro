@@ -7,8 +7,8 @@ import Terminal from '../components/Terminal.astro';
 import Beat from '../components/Beat.astro';
 import Pack from '../components/Pack.astro';
 import Vote from '../components/Vote.astro';
+import Compare from '../components/Compare.astro';
 import Rules from '../components/Rules.astro';
-import Band from '../components/Band.astro';
 import Byok from '../components/Byok.astro';
 import Report from '../components/Report.astro';
 import Measured from '../components/Measured.astro';
@@ -88,8 +88,18 @@ const notes = [
         </Section>
 
         <Section
-            id="pack"
+            id="compare"
             exhibit="File 02"
+            ruled
+            title="A checklist, a crawler, a hunt."
+            margin="Keep your rule scanner running: it is fast and it never sleeps. This is for what no rule has a name for."
+        >
+            <Compare />
+        </Section>
+
+        <Section
+            id="pack"
+            exhibit="File 03"
             ruled
             title={`${agentCount} noses, one lead.`}
             margin="Each agent gets a narrow toolkit and a strict schema. None of them can both read your files and reach the network."
@@ -99,7 +109,7 @@ const notes = [
 
         <Section
             id="vote"
-            exhibit="File 03"
+            exhibit="File 04"
             field="ember"
             title="Two votes before a verdict."
             margin="A finding nobody tried to disprove is a guess. Every one here was argued against first."
@@ -109,21 +119,16 @@ const notes = [
 
         <Section
             id="rules"
-            exhibit="File 04"
+            exhibit="File 05"
             title="Seven things it will never do."
             margin="Scanned code is hostile input. These hold even when the code in front of it says otherwise."
         >
             <Rules />
         </Section>
 
-        <Band
-            id="eustace"
-            caption="Albrecht Dürer, *Saint Eustace* (detail), c. 1501. The pack waits for the word."
-        />
-
         <Section
             id="byok"
-            exhibit="File 05"
+            exhibit="File 06"
             title="Bring your own brain."
             margin="No bundled model, no account, no key of ours. It reads your key from the environment and nothing else."
         >
@@ -132,7 +137,7 @@ const notes = [
 
         <Section
             id="report"
-            exhibit="File 06"
+            exhibit="File 07"
             ruled
             title="What it leaves behind."
             margin="Plain Markdown in your repo: readable in a code review, diffable in git, no dashboard to log into."
@@ -142,7 +147,7 @@ const notes = [
 
         <Section
             id="measured"
-            exhibit="File 07"
+            exhibit="File 08"
             field="ember"
             title="Measured, not claimed."
             margin="Every figure comes from reasonhound-bench, re-run on each release. The boxed row is the one to read first."
@@ -152,7 +157,7 @@ const notes = [
 
         <Section
             id="limits"
-            exhibit="File 08"
+            exhibit="File 09"
             title="Where the trail goes cold."
             margin="A scanner that shows its reasoning also has to say where its nose stops."
         >
@@ -161,7 +166,7 @@ const notes = [
 
         <Section
             id="ci"
-            exhibit="File 09"
+            exhibit="File 10"
             ruled
             title="The same hunt behind a pipe."
             margin="In CI the flags answer the wizard's questions, and the exit code is the verdict."

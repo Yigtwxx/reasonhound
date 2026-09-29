@@ -2,6 +2,7 @@
 /* The same hunt behind a pipe: the wizard's questions as flags, the exit code
    as the verdict, and the Actions job that puts it on every pull request. */
 import { ciCommands, exitCodes, workflow } from '../data/commands';
+import Halftone from './Halftone.astro';
 import SketchBox from './sketch/SketchBox.astro';
 import SketchArrow from './sketch/SketchArrow.astro';
 ---
@@ -9,7 +10,7 @@ import SketchArrow from './sketch/SketchArrow.astro';
 <div class="ci">
     <div class="ci__main">
         <SketchBox padding="md" draw class="ci__commands">
-            <div class="ci__pre" role="figure" aria-label="Command examples">
+            <div class="ci__pre" role="figure" aria-label="Command examples" tabindex="0">
                 {ciCommands.map((c) => (
                     <div class="ci__line">
                         <span class="ci__prompt" aria-hidden="true">
@@ -55,10 +56,28 @@ import SketchArrow from './sketch/SketchArrow.astro';
             </p>
         </div>
     </div>
-    <figure class="ci__workflow">
-        <figcaption class="ci__file">.github/workflows/reasonhound.yml</figcaption>
-        <pre><code>{workflow}</code></pre>
-    </figure>
+    <div class="ci__side">
+        <figure class="ci__workflow">
+            <figcaption class="ci__file">.github/workflows/reasonhound.yml</figcaption>
+            <pre
+                tabindex="0"
+                role="region"
+                aria-label="GitHub Actions workflow"
+            ><code>{workflow}</code></pre>
+        </figure>
+        <figure class="ci__plate">
+            <Halftone
+                id="eustace-glance"
+                tone="paper"
+                drift
+                sizes="(min-width: 64rem) 22rem, 80vw"
+            />
+            <figcaption class="caption ci__caption">
+                Albrecht Dürer, <cite>Saint Eustace</cite> (detail). One look back, then on to the
+                next pull request.
+            </figcaption>
+        </figure>
+    </div>
 </div>
 
 <style>
@@ -137,6 +156,20 @@ import SketchArrow from './sketch/SketchArrow.astro';
     }
     .ci__prose p {
         color: var(--ink-soft);
+    }
+    /* min-width: 0 so the workflow's <pre> still scrolls inside its column. */
+    .ci__side {
+        display: grid;
+        gap: var(--space-7);
+        min-width: 0;
+    }
+    .ci__plate {
+        margin: 0;
+        width: min(100%, 20rem);
+        justify-self: center;
+    }
+    .ci__caption {
+        margin-top: var(--space-3);
     }
     .ci__workflow {
         margin: 0;

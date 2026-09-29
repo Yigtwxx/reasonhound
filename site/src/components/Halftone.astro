@@ -1,8 +1,7 @@
 ---
 /* A dithered engraving from the manifest. Two-level PNGs with a transparent
-   tone, so the field behind decides the second colour; the `dense` variant is
-   cross-faded in on hover, which reads as the print darkening under the hand. It
-   is fetched on the first hover, not with the page (scripts/halftone-hover.ts). */
+   tone, so the field behind decides the second colour. A plate stays still under
+   the pointer; the only motion is the optional scroll drift below. */
 import { images, type GeneratedImage, type ImageId, type Tone } from '../data/images.generated';
 import { withBase } from '../lib/base';
 
@@ -10,8 +9,9 @@ interface Props {
     id: ImageId;
     tone?: Tone;
     sizes?: string;
-    hover?: boolean;
     loading?: 'eager' | 'lazy';
+    /** `high` for the plate that is the page's largest first paint. */
+    fetchpriority?: 'high' | 'low' | 'auto';
     /** Fade the edges out, for a detail lifted from a larger plate. */
     vignette?: boolean;
     /**
@@ -30,27 +30,20 @@ const {
     id,
     tone = 'paper',
     sizes = '(min-width: 64rem) 40vw, 90vw',
-    hover = true,
     loading = 'lazy',
+    fetchpriority,
     vignette = false,
     drift = false,
     class: className,
 } = Astro.props;
 const image: GeneratedImage = images[id];
 const set = image.variants[tone];
-const dense = image.variants[`${tone}-dense`];
 if (!set)
     throw new Error(`image "${id}" has no "${tone}" variant; add the tone to images.manifest.json`);
 const srcset = Object.entries(set)
     .map(([w, src]) => `${withBase(src)} ${w}w`)
     .join(', ');
-const denseSrcset = dense
-    ? Object.entries(dense)
-          .map(([w, src]) => `${withBase(src)} ${w}w`)
-          .join(', ')
-    : null;
 const fallback = withBase(set[720] ?? Object.values(set)[0] ?? '');
-const denseFallback = dense ? withBase(dense[720] ?? Object.values(dense)[0] ?? '') : '';
 const width = 720;
 const height = Math.round(720 / image.aspect);
 const timeline = typeof drift === 'string' && drift.startsWith('--') ? drift : null;
@@ -60,7 +53,6 @@ const timeline = typeof drift === 'string' && drift.startsWith('--') ? drift : n
     class:list={[
         'halftone',
         {
-            'halftone--hover': hover && denseSrcset,
             'halftone--vignette': vignette,
             'halftone--drift': drift,
             'halftone--drift-page': drift === 'page',
@@ -78,22 +70,9 @@ const timeline = typeof drift === 'string' && drift.startsWith('--') ? drift : n
         height={height}
         alt={image.alt}
         loading={loading}
+        fetchpriority={fetchpriority}
         decoding="async"
     />
-    {hover && denseSrcset ? (
-        <img
-            class="halftone__img halftone__img--dense"
-            data-src={denseFallback}
-            data-srcset={denseSrcset}
-            sizes={sizes}
-            width={width}
-            height={height}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-        />
-    ) : null}
 </span>
 
 <style>
@@ -112,17 +91,6 @@ const timeline = typeof drift === 'string' && drift.startsWith('--') ? drift : n
     }
     .halftone--vignette {
         mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, black 40%, transparent 100%);
-    }
-    .halftone__img--dense {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        transition: opacity 260ms ease;
-    }
-    @media (hover: hover) {
-        .halftone--hover.has-dense:hover .halftone__img--dense {
-            opacity: 1;
-        }
     }
     /* The window: the frame stays put and the engraving drifts behind it, so
        scrolling down reads as stepping back and looking up through the glass. The
