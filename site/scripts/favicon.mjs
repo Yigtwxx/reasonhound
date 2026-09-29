@@ -1,36 +1,29 @@
-/* Writes the favicon set from one drawing: a sighthound's head in profile, in
-   paper on an ember square — the Diana of the hero, collar and all — with
-   rounded, transparent corners (Safari draws a light hairline around
-   a fully opaque favicon). The SVG is the source; the two PNG sizes and a
-   three-size `favicon.ico` are rendered from it. */
+/* Writes the favicon set from one drawing, scripts/favicon.source.svg: the
+   head and neck of Otto Eerelman's lying greyhound (the Measured plate),
+   thresholded from the etching and traced with potrace, in paper on an ember
+   square with rounded, transparent corners (Safari draws a light hairline
+   around a fully opaque favicon). The SVG is copied as is; the two PNG sizes
+   and a three-size `favicon.ico` are rendered from it. */
 
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
-const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.dirname(here);
 const out = (name) => path.join(root, 'public', name);
 
-const EMBER = '#b53a0a';
-const PAPER = '#faf1dc';
-
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<rect width="64" height="64" rx="12" fill="${EMBER}"/>
-<g fill="${PAPER}">
-<path d="M10 64C12 50 14 40 17 32C19 25 22 20 28 18.5C33 17.3 38 17.6 42 19.6C47 21.6 52 23 57 24.4C59 25 59.6 27.6 58 28.8C56.5 29.8 54 30.2 51.5 31C46 32.8 41 34.6 37 36.8C33 39 30.5 43 30 48C29.6 54 30.5 59 31.5 64Z"/>
-<path d="M27 20C23 15 16 14.5 11 17.8C15.5 19 19.5 21.5 22.5 25Z"/>
-</g>
-<g fill="none" stroke="${EMBER}" stroke-linecap="round">
-<path d="M57.4 28.4C53 29.2 48.5 29.6 45 29.2" stroke-width="1.7"/>
-<path d="M14.8 44.5L30.6 47.2" stroke-width="3.4"/>
-</g>
-<circle cx="40.5" cy="23.6" r="1.9" fill="${EMBER}"/>
-</svg>
-`;
+const svg = await readFile(path.join(here, 'favicon.source.svg'), 'utf8');
 
 await writeFile(out('favicon.svg'), svg, 'utf8');
-const png = (size) => sharp(Buffer.from(svg)).resize(size, size).png().toBuffer();
+// Rasterised at twice the target size, then scaled down: the 64-unit viewBox
+// read at the default 72 dpi would be upscaled for the 180 px icon.
+const png = (size) =>
+    sharp(Buffer.from(svg), { density: Math.ceil((72 * size * 2) / 64) })
+        .resize(size, size)
+        .png()
+        .toBuffer();
 await writeFile(out('favicon-32.png'), await png(32));
 await writeFile(out('apple-touch-icon.png'), await png(180));
 

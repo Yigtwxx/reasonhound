@@ -11,7 +11,7 @@ import typeUrl from '@fontsource/special-elite/files/special-elite-latin-400-nor
 const preload = [frauncesUrl, interUrl, monoUrl, typeUrl];
 // Browsers cache favicons apart from the page, so a hard reload does not refetch
 // them; bump this when the icon files change.
-const iconVersion = 4;
+const iconVersion = 5;
 const icon = (name: string): string => `${withBase(name)}?v=${iconVersion}`;
 
 interface Props {
