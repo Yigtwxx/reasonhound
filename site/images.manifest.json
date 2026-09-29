@@ -1,0 +1,290 @@
+{
+    "$comment": "Public-domain sources for the site's halftones. Every entry was checked on its Commons page for licence (CC0 or PD-old) before being added. Run `npm run images` after editing; the outputs in public/images are committed.",
+    "images": [
+        {
+            "id": "diana",
+            "alt": "A lean collared greyhound stands in full profile on a grassy plain, tongue out; tiny riders and birds on the horizon. Etching.",
+            "title": "Hazewindhond Diana",
+            "author": "Gerardus Emaus de Micault",
+            "year": 1819,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Hazewindhond_Diana,_RP-P-1884-A-8205.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Hazewindhond_Diana%2C_RP-P-1884-A-8205.jpg",
+            "tones": ["ember", "paper"],
+            "crop": {
+                "x": 0.03,
+                "y": 0.06,
+                "w": 0.94,
+                "h": 0.83
+            }
+        },
+        {
+            "id": "head",
+            "alt": "Close profile of a greyhound's head, a folded ear, a watchful eye and a buckled collar. Etching.",
+            "title": "Kop van een hazewindhond",
+            "author": "Joseph Mendes da Costa",
+            "year": 1828,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Kop_van_een_hazewindhond,_RP-P-OB-48.097.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Kop_van_een_hazewindhond%2C_RP-P-OB-48.097.jpg",
+            "tones": ["paper", "ember"],
+            "crop": {
+                "x": 0.1,
+                "y": 0.16,
+                "w": 0.84,
+                "h": 0.72
+            }
+        },
+        {
+            "id": "stag-hunt",
+            "alt": "Hounds with their noses to the ground track stags through a wood while mounted hunters close in. Engraving.",
+            "title": "Hertenjacht met honden (Venationes Ferarum)",
+            "author": "Jan Collaert II after Stradanus",
+            "year": 1596,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Hertenjacht_met_honden_Jachttaferelen_(serietitel)_Venationes_Ferarum,_auium,_piscium_pvgnae_Bestiariorum_(serietitel),_RP-P-1982-282.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Hertenjacht_met_honden_Jachttaferelen_%28serietitel%29_Venationes_Ferarum%2C_auium%2C_piscium_pvgnae_Bestiariorum_%28serietitel%29%2C_RP-P-1982-282.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.03,
+                "y": 0.0,
+                "w": 0.95,
+                "h": 0.88
+            }
+        },
+        {
+            "id": "sniffer",
+            "alt": "A spotted hound with its nose pressed to the roots of a tree, cropped from a Stradanus hunting plate.",
+            "title": "Hertenjacht met honden (detail: a hound on the scent)",
+            "author": "Jan Collaert II after Stradanus",
+            "year": 1596,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Hertenjacht_met_honden_Jachttaferelen_(serietitel)_Venationes_Ferarum,_auium,_piscium_pvgnae_Bestiariorum_(serietitel),_RP-P-1982-282.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Hertenjacht_met_honden_Jachttaferelen_%28serietitel%29_Venationes_Ferarum%2C_auium%2C_piscium_pvgnae_Bestiariorum_%28serietitel%29%2C_RP-P-1982-282.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.56,
+                "y": 0.62,
+                "w": 0.22,
+                "h": 0.28
+            }
+        },
+        {
+            "id": "hollar",
+            "alt": "Five piebald hunting hounds on a blank ground, seated, lying and standing; one faces the viewer. Etching.",
+            "title": "Vijf jachthonden",
+            "author": "Wenceslaus Hollar",
+            "year": 1647,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Vijf_jachthonden_Jacht,_jachthonden_en_wild_(serietitel),_RP-P-OB-11.595.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Vijf_jachthonden_Jacht%2C_jachthonden_en_wild_%28serietitel%29%2C_RP-P-OB-11.595.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.05,
+                "y": 0.08,
+                "w": 0.9,
+                "h": 0.78
+            }
+        },
+        {
+            "id": "stare",
+            "alt": "A hound's head, looking straight at the viewer, cropped from Hollar's Five hunting hounds.",
+            "title": "Vijf jachthonden (detail: the hound that stares back)",
+            "author": "Wenceslaus Hollar",
+            "year": 1647,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Vijf_jachthonden_Jacht,_jachthonden_en_wild_(serietitel),_RP-P-OB-11.595.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Vijf_jachthonden_Jacht%2C_jachthonden_en_wild_%28serietitel%29%2C_RP-P-OB-11.595.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.37,
+                "y": 0.09,
+                "w": 0.21,
+                "h": 0.24
+            }
+        },
+        {
+            "id": "chase",
+            "alt": "The head and forelegs of a hound at full stretch, cropped from Oudry's Chien courant.",
+            "title": "Chien courant (detail: the chase)",
+            "author": "Jacques-Philippe Le Bas and Jean Eric Rehn after Jean-Baptiste Oudry",
+            "year": 1745,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Jacques-Philippe_Le_Bas_and_Jean_Eric_Rehn_after_Jean-Baptiste_Oudry,_Chien_courent_(Running_Hound),_NGA_52102.jpg",
+            "source": "National Gallery of Art, Washington",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Jacques-Philippe_Le_Bas_and_Jean_Eric_Rehn_after_Jean-Baptiste_Oudry%2C_Chien_courent_%28Running_Hound%29%2C_NGA_52102.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.55,
+                "y": 0.33,
+                "w": 0.42,
+                "h": 0.5
+            }
+        },
+        {
+            "id": "par-force",
+            "alt": "A mounted huntsman with a French horn over his shoulder rides past an oak while a pack of spotted hounds waits below. Etching and engraving.",
+            "title": "Huntsman with a Pack of Hounds",
+            "author": "Johann Elias Ridinger",
+            "year": null,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Johann_Elias_Ridinger,_Huntsman_with_a_Pack_of_Hounds,_NGA_55544.jpg",
+            "source": "National Gallery of Art, Washington",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Johann_Elias_Ridinger%2C_Huntsman_with_a_Pack_of_Hounds%2C_NGA_55544.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.05,
+                "y": 0.03,
+                "w": 0.92,
+                "h": 0.88
+            }
+        },
+        {
+            "id": "pair",
+            "alt": "A wind-blown huntsman in a broad hat holds two tall greyhounds on a hillock beside a leafy tree. Engraving and etching.",
+            "title": "Windhonden",
+            "author": "Frederick Bloemaert after Abraham Bloemaert",
+            "year": 1650,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Windhonden_Dieren_(serietitel),_RP-P-BI-1503.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Windhonden_Dieren_%28serietitel%29%2C_RP-P-BI-1503.jpg",
+            "tones": ["ember"],
+            "crop": {
+                "x": 0.08,
+                "y": 0.08,
+                "w": 0.85,
+                "h": 0.8
+            }
+        },
+        {
+            "id": "eustace",
+            "alt": "Two greyhounds and three hounds wait in the undergrowth at their master's feet; a detail from Dürer's Saint Eustace. Engraving.",
+            "title": "Saint Eustace (detail: the hounds)",
+            "author": "Albrecht Dürer",
+            "year": 1501,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer,_Saint_Eustace,_c._1500-1501,_NGA_35100.jpg",
+            "source": "National Gallery of Art, Washington",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/Albrecht_D%C3%BCrer%2C_Saint_Eustace%2C_c._1500-1501%2C_NGA_35100.jpg",
+            "tones": ["ember", "paper"],
+            "crop": {
+                "x": 0.0,
+                "y": 0.64,
+                "w": 1.0,
+                "h": 0.33
+            }
+        },
+        {
+            "id": "fyt",
+            "alt": "A dark greyhound stoops over dead game among rocks and thistles, a hunting rifle in the foreground. Etching.",
+            "title": "Landscape with Greyhound and Rifle",
+            "author": "Jan Fyt",
+            "year": 1642,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Jan_Fyt,_Landscape_with_Greyhound_and_Rifle,_1642,_NGA_55434.jpg",
+            "source": "National Gallery of Art, Washington",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Jan_Fyt%2C_Landscape_with_Greyhound_and_Rifle%2C_1642%2C_NGA_55434.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.05,
+                "y": 0.06,
+                "w": 0.9,
+                "h": 0.86
+            }
+        },
+        {
+            "id": "bloodhound",
+            "alt": "Two dark bloodhounds stand in a woodland clearing, heads turned, noses working. Engraving.",
+            "title": "Blood Hounds",
+            "author": "James Westley after Samuel Howitt",
+            "year": 1828,
+            "licence": "Public domain",
+            "licence_url": "https://commons.wikimedia.org/wiki/Template:PD-old-100-expired",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Bloodhounds_1826.jpg",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Bloodhounds_1826.jpg",
+            "tones": ["paper"],
+            "contrast": 1.6,
+            "crop": {
+                "x": 0.4,
+                "y": 0.33,
+                "w": 0.56,
+                "h": 0.56
+            }
+        },
+        {
+            "id": "lying",
+            "alt": "A dark greyhound lies on the ground, head raised and ears pricked, against sketchy grass. Etching.",
+            "title": "Liggende hazewindhond",
+            "author": "Otto Eerelman",
+            "year": null,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Liggende_hazewindhond,_RP-P-1912-81.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Liggende_hazewindhond%2C_RP-P-1912-81.jpg",
+            "tones": ["ember", "paper"],
+            "crop": {
+                "x": 0.25,
+                "y": 0.27,
+                "w": 0.52,
+                "h": 0.45
+            }
+        },
+        {
+            "id": "dasveldt",
+            "alt": "A greyhound lies alert in the grass, head up and watching, while a second greyhound runs off towards the horizon behind it. Etching.",
+            "title": "Hazewindhonden",
+            "author": "Jan Dasveldt",
+            "year": 1800,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Hazewindhonden,_RP-P-1882-A-5002.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Hazewindhonden%2C_RP-P-1882-A-5002.jpg",
+            "crop": {
+                "x": 0.085,
+                "y": 0.1,
+                "w": 0.83,
+                "h": 0.8
+            },
+            "tones": ["paper"]
+        },
+        {
+            "id": "tempesta",
+            "alt": "A stag hunt: a rider with a raised spear, hounds leaping at the quarry, more riders and hounds streaming across the open country behind. Etching.",
+            "title": "Jacht op herten",
+            "author": "After Antonio Tempesta",
+            "year": 1624,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Jacht_op_herten_Jachttaferelen_(serietitel)_Iachtboeck_(serietitel_op_object),_RP-P-OB-68.109.jpg",
+            "source": "Rijksmuseum",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Jacht_op_herten_Jachttaferelen_%28serietitel%29_Iachtboeck_%28serietitel_op_object%29%2C_RP-P-OB-68.109.jpg",
+            "crop": {
+                "x": 0.325,
+                "y": 0.275,
+                "w": 0.39,
+                "h": 0.43
+            },
+            "tones": ["ember"]
+        }
+    ]
+}

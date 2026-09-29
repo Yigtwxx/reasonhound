@@ -1,0 +1,48 @@
+---
+/* A secret as the model sees it: a black bar in the file, the redaction label
+   underneath. Hover or focus lifts the bar to show what the egress redactor
+   wrote in its place — never the secret itself, which the page does not have. */
+interface Props {
+    /** The label egress-redactor writes, e.g. "jwt" → [REDACTED:jwt]. */
+    label: string;
+    /** Width of the bar, in characters of the hidden value. */
+    chars?: number;
+}
+const { label, chars = 18 } = Astro.props;
+---
+
+<span class="redact" tabindex="0" style={`--chars: ${chars}`}>
+    <span class="redact__label">[REDACTED:{label}]</span>
+    <span class="redact__bar" aria-hidden="true"></span>
+</span>
+
+<style>
+    .redact {
+        position: relative;
+        display: inline-grid;
+        vertical-align: baseline;
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+        min-width: calc(var(--chars) * 1ch);
+        border-radius: 1px;
+        cursor: help;
+    }
+    .redact__label {
+        grid-area: 1 / 1;
+        color: var(--ember);
+        white-space: nowrap;
+        padding-inline: 0.2em;
+    }
+    .redact__bar {
+        grid-area: 1 / 1;
+        background: var(--ink);
+        transform-origin: left center;
+        transition: transform 360ms var(--ease-pen);
+        /* a marker stroke, slightly uneven at the ends */
+        clip-path: polygon(0 8%, 100% 0, 99% 94%, 1% 100%);
+    }
+    .redact:hover .redact__bar,
+    .redact:focus-visible .redact__bar {
+        transform: scaleX(0.04);
+    }
+</style>

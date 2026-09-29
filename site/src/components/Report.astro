@@ -1,0 +1,303 @@
+---
+/* What it leaves behind: the Reasonhound/ folder as a tree, one finding file
+   opened beside it, the audit trail under it, and what a second run does. */
+import Halftone from './Halftone.astro';
+import Stamp from './case/Stamp.astro';
+import SketchBox from './sketch/SketchBox.astro';
+import SketchArrow from './sketch/SketchArrow.astro';
+
+const tree = [
+    { name: 'Reasonhound/', note: '', depth: 0 },
+    { name: 'INDEX.md', note: 'severity-sorted table, one link per finding', depth: 1 },
+    { name: 'findings/', note: '', depth: 1 },
+    { name: '001-critical-sqli-api-export.md', note: 'open →', depth: 2, open: true },
+    { name: '002-high-idor-orders-id.md', note: '', depth: 2 },
+    { name: '003-medium-xss-search.md', note: 'rejected, kept with its reason', depth: 2 },
+    { name: 'reasonhound.sarif', note: 'with --format sarif', depth: 1 },
+    { name: 'audit.log', note: 'every probe, one redacted JSON line each', depth: 1 },
+    { name: '.memory/', note: 'local only, gitignored', depth: 1 },
+];
+
+const merge = [
+    { label: 'New', tone: 'bad' as const, what: 'a finding this run is the first to see' },
+    {
+        label: 'Updated',
+        tone: 'warn' as const,
+        what: 'same finding, new status or evidence; history kept',
+    },
+    { label: 'Resolved', tone: 'ok' as const, what: 'confirmed before, no longer reproduces' },
+];
+---
+
+<div class="report">
+    <div class="report__left">
+        <ul class="report__tree" aria-label="The Reasonhound folder">
+            {tree.map((t) => (
+                <li
+                    class:list={['report__node', { 'report__node--open': t.open }]}
+                    style={`--depth: ${t.depth}`}
+                >
+                    <code>{t.name}</code>
+                    {t.note ? <span class="report__node-note">{t.note}</span> : null}
+                </li>
+            ))}
+        </ul>
+        <figure class="report__figure">
+            <Halftone id="bloodhound" tone="paper" hover={false} vignette sizes="18rem" />
+            <figcaption class="caption">
+                After Samuel Howitt, <cite>Blood Hounds</cite>, 1828. They bring back what they
+                found, and where.
+            </figcaption>
+        </figure>
+    </div>
+
+    <SketchBox as="article" padding="lg" draw fill class="report__doc">
+        <p class="report__path">findings/001-critical-sqli-api-export.md</p>
+        <h3 class="report__title">SQL injection in the export sort parameter</h3>
+        <p class="report__stamps">
+            <Stamp label="confirmed" tone="bad" tilt={-3} />
+            <span class="report__sev">critical · CVSS 9.1 · confidence high</span>
+        </p>
+        <dl class="report__meta">
+            <div>
+                <dt>where</dt>
+                <dd>
+                    <code>app/api/export.py:112</code> · <code>GET /api/export?sort=</code>
+                </dd>
+            </div>
+            <div>
+                <dt>data flow</dt>
+                <dd>
+                    <code>request.query["sort"]</code> → <code>build_order()</code> → f-string{' '}
+                    <code>
+                        ORDER BY {'{'}sort{'}'}
+                    </code>{' '}
+                    → <code>conn.execute()</code>
+                </dd>
+            </div>
+            <div>
+                <dt>found by</dt>
+                <dd>
+                    injection-hunter, round 7, after a pivot from <code>users.py:48</code>
+                </dd>
+            </div>
+        </dl>
+        <p class="report__h">Proof (harmless)</p>
+        <pre class="report__poc"><code>GET /api/export?sort=(CASE+WHEN+1=1+THEN+pg_sleep(2)+END)
+→ 200 OK in 2.07 s   (baseline 0.03 s · 5 of 5 runs)</code></pre>
+        <p class="report__h">Reasoning</p>
+        <ul class="report__votes">
+            <li>
+                <b class="v-red">red</b> the sort value reaches SQL text unbound; timing confirms it
+            </li>
+            <li>
+                <b class="v-blue">blue</b> looked for an allowlist, a bind and a WAF rule; found
+                none
+            </li>
+            <li>
+                <b class="v-arb">arbiter</b> confirmed · confidence high
+            </li>
+        </ul>
+        <p class="report__h">Fix</p>
+        <p class="report__fix">
+            Map <code>sort</code> through an allowlist of column names, or build the clause with{' '}
+            <code>sqlalchemy.column()</code>. Never format it into the query.
+        </p>
+    </SketchBox>
+</div>
+
+<div class="report__after">
+    <div class="report__audit">
+        <p class="report__h">audit.log</p>
+        <pre><code>{`{"t":"2026-09-29T10:14:07Z","agent":"red-verifier","tool":"http_probe","target":"http://app:8000","req":"GET /api/export?sort=[…]","status":200,"ms":2071,"egress":"allowed:target"}`}</code></pre>
+    </div>
+    <div class="report__merge">
+        <div class="report__merge-head">
+            <SketchArrow direction="curve-down" size={48} />
+            <p class="marginalia">Run it again next week. The file is merged, not overwritten.</p>
+        </div>
+        <dl>
+            {merge.map((m, i) => (
+                <div>
+                    <dt>
+                        <Stamp label={m.label} tone={m.tone} tilt={i % 2 ? 2 : -3} size="sm" />
+                    </dt>
+                    <dd>{m.what}</dd>
+                </div>
+            ))}
+        </dl>
+    </div>
+</div>
+
+<style>
+    .report {
+        display: grid;
+        gap: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .report {
+            grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+            gap: var(--space-8);
+            align-items: start;
+        }
+    }
+    .report__tree {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-size: var(--step--1);
+    }
+    .report__node {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.2em 0.8em;
+        padding: 0.35em 0 0.35em calc(var(--depth) * 1.4em);
+        border-bottom: 1px dashed var(--paper-line);
+        position: relative;
+    }
+    .report__node code {
+        background: none;
+        padding: 0;
+    }
+    .report__node--open code {
+        color: var(--ember);
+        font-weight: 500;
+    }
+    .report__node-note {
+        font-family: var(--font-type);
+        font-size: 0.85em;
+        color: var(--ink-mute);
+    }
+    .report__node--open .report__node-note {
+        color: var(--ember);
+    }
+    .report__figure {
+        margin: var(--space-6) 0 0;
+        max-width: 18rem;
+    }
+    .report__doc {
+        font-size: var(--step--1);
+    }
+    .report__path {
+        font-family: var(--font-mono);
+        color: var(--ink-mute);
+        margin: 0 0 var(--space-3);
+    }
+    .report__title {
+        font-size: var(--step-3);
+        max-width: 22ch;
+    }
+    .report__stamps {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3) var(--space-4);
+        margin-bottom: var(--space-5);
+    }
+    .report__sev {
+        font-family: var(--font-mono);
+        color: var(--ember);
+    }
+    .report__meta {
+        display: grid;
+        gap: var(--space-2);
+        margin: 0 0 var(--space-5);
+    }
+    .report__meta > div {
+        display: grid;
+        grid-template-columns: 6rem minmax(0, 1fr);
+        gap: var(--space-3);
+    }
+    .report__meta dt {
+        font-family: var(--font-type);
+        color: var(--ink-mute);
+    }
+    .report__meta dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+    .report__h {
+        font-family: var(--font-type);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--ink-mute);
+        margin: var(--space-4) 0 var(--space-2);
+    }
+    .report__poc,
+    .report__audit pre {
+        background: var(--tui-bg);
+        color: var(--tui-fg);
+        padding: var(--space-3) var(--space-4);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+    .report__votes {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.3em;
+        font-family: var(--font-mono);
+    }
+    .report__votes li {
+        display: grid;
+        grid-template-columns: 5.5em minmax(0, 1fr);
+        gap: 0.4em;
+    }
+    .report__votes b {
+        font-weight: 500;
+    }
+    .v-red {
+        color: var(--ember);
+    }
+    .v-blue {
+        color: var(--slate);
+    }
+    .v-arb {
+        color: var(--amber-deep);
+    }
+    .report__fix {
+        margin: 0;
+    }
+    .report__after {
+        display: grid;
+        gap: var(--space-6);
+        margin-top: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .report__after {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: var(--space-8);
+        }
+    }
+    .report__merge-head {
+        display: flex;
+        gap: var(--space-2);
+        align-items: flex-start;
+    }
+    .report__merge-head :global(svg) {
+        flex: none;
+    }
+    .report__merge-head .marginalia {
+        margin: 0;
+    }
+    .report__merge dl {
+        display: grid;
+        gap: var(--space-3);
+        margin: var(--space-4) 0 0;
+    }
+    .report__merge dl > div {
+        display: grid;
+        grid-template-columns: 8rem minmax(0, 1fr);
+        gap: var(--space-3);
+        align-items: center;
+    }
+    .report__merge dd {
+        margin: 0;
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+    }
+</style>

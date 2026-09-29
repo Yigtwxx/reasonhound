@@ -1,0 +1,131 @@
+---
+/* The ember field. One hound, one sentence, one command. */
+import Halftone from './Halftone.astro';
+import InstallBox from './InstallBox.astro';
+import SketchUnderline from './sketch/SketchUnderline.astro';
+import Stamp from './case/Stamp.astro';
+import { version } from '../data/commands';
+---
+
+<section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="page hero__grid">
+        <div class="hero__copy">
+            <p class="hero__kicker">
+                reasonhound <span class="hero__version">v{version}</span>
+                <span class="hero__case">case no. 0142 · open</span>
+            </p>
+            <h1 id="hero-title" class="hero__title">
+                Follows the{' '}
+                <SketchUnderline tone="amber" draw>
+                    scent.
+                </SketchUnderline>
+                <br />
+                Not the checklist.
+            </h1>
+            <p class="hero__lede">
+                reasonhound is a security scanner that{' '}
+                <em class="key">reasons like a senior researcher</em>. Point it at your own web app
+                or API: it forms a hypothesis, probes it, and when the trail goes cold it{' '}
+                <em class="key">rethinks and tries another angle</em> — then writes every finding to
+                Markdown, with the reasoning behind it.
+            </p>
+            <InstallBox tone="paper" id="hero-install" />
+            <p class="hero__fine">
+                Bring your own model: Claude, GPT, Gemini, or a local Ollama. Your code never goes
+                to a provider you did not pick. macOS, Windows, Linux.
+            </p>
+        </div>
+        <figure class="hero__figure">
+            <div class="hero__plate">
+                <Halftone
+                    id="diana"
+                    tone="ember"
+                    loading="eager"
+                    drift="page"
+                    sizes="(min-width: 64rem) 46vw, 92vw"
+                />
+                <span class="hero__stamp">
+                    <Stamp label="on the scent" tone="bad" tilt={-6} size="lg" />
+                </span>
+            </div>
+            <figcaption class="caption hero__caption">
+                Gerardus Emaus de Micault, <cite>Hazewindhond Diana</cite>, 1819. A sighthound,
+                pointed at the horizon.
+            </figcaption>
+        </figure>
+    </div>
+</section>
+
+<style>
+    .hero {
+        --field: var(--ember);
+        --pen: var(--amber-soft);
+        --caption: var(--amber-soft);
+        background: var(--ember);
+        color: var(--paper);
+        padding-block: var(--space-7) var(--space-8);
+        overflow: clip;
+    }
+    .hero__grid {
+        display: grid;
+        gap: var(--space-6);
+        align-items: center;
+    }
+    @media (min-width: 64rem) {
+        .hero__grid {
+            grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+            gap: var(--space-7);
+            min-height: calc(100vh - 3.5rem);
+        }
+    }
+    .hero__kicker {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.4em 1.2em;
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        color: var(--amber-soft);
+        margin-bottom: var(--space-5);
+    }
+    .hero__case {
+        font-family: var(--font-type);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.1em 0.5em;
+        border: 1px dashed currentColor;
+    }
+    .hero__title {
+        color: var(--paper);
+        margin-bottom: var(--space-5);
+        max-width: 13ch;
+    }
+    .hero__lede {
+        font-size: var(--step-1);
+        line-height: 1.45;
+        max-width: 38ch;
+        margin-bottom: var(--space-6);
+    }
+    .hero__fine {
+        font-size: var(--step--1);
+        color: var(--amber-soft);
+        margin-top: var(--space-4);
+        max-width: 50ch;
+    }
+    .hero__figure {
+        margin: 0;
+    }
+    .hero__plate {
+        position: relative;
+    }
+    /* In the plate's empty sky, clear of the hound. */
+    .hero__stamp {
+        position: absolute;
+        right: 5%;
+        top: 9%;
+    }
+    .hero__caption {
+        margin-top: var(--space-3);
+        max-width: 44ch;
+    }
+</style>

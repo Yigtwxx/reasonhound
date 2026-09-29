@@ -1,0 +1,152 @@
+---
+/* The ledger on the ember field: each figure set large, the set it was measured
+   on beside it; the local-model row in its own box because it is the one that
+   says where the tool is weaker. */
+import { measures } from '../data/measured';
+import Halftone from './Halftone.astro';
+import SketchBox from './sketch/SketchBox.astro';
+import SketchRule from './sketch/SketchRule.astro';
+---
+
+<div class="measured">
+    <ol class="measured__list">
+        {measures
+            .filter((m) => !m.weak)
+            .map((m) => (
+                <li class="measured__row">
+                    <p class="measured__figure">
+                        <b>{m.figure}</b>
+                        <span class="measured__reading">{m.reading}</span>
+                    </p>
+                    <div class="measured__text">
+                        <p class="measured__what">{m.what}</p>
+                        <p class="measured__set">
+                            {m.set}
+                            {m.against ? <span class="measured__against">{m.against}</span> : null}
+                        </p>
+                    </div>
+                    <div class="measured__rule">
+                        <SketchRule tone="paper" />
+                    </div>
+                </li>
+            ))}
+    </ol>
+    <div class="measured__side">
+        <figure class="measured__plate">
+            <Halftone
+                id="lying"
+                tone="ember"
+                drift="--measured-plate"
+                sizes="(min-width: 64rem) 26vw, 70vw"
+            />
+            <figcaption class="caption">
+                Otto Eerelman, <cite>Lying greyhound</cite>. Ears up, even at rest.
+            </figcaption>
+        </figure>
+        {measures
+            .filter((m) => m.weak)
+            .map((m) => (
+                <SketchBox tone="paper" padding="md" draw fill class="measured__weak">
+                    <p class="measured__figure">
+                        <b>{m.figure}</b>
+                        <span class="measured__reading">{m.reading}</span>
+                    </p>
+                    <p class="measured__what">{m.what}</p>
+                    <p class="measured__set">
+                        {m.set}
+                        <span class="measured__against">{m.against}</span>
+                    </p>
+                    <p class="measured__note">{m.note}</p>
+                    <p class="marginalia">Read this row before you point it at a release.</p>
+                </SketchBox>
+            ))}
+    </div>
+</div>
+
+<style>
+    .measured {
+        view-timeline: --measured-plate block;
+        display: grid;
+        gap: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .measured {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: var(--space-8);
+            align-items: start;
+        }
+    }
+    .measured__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+    }
+    .measured__row {
+        position: relative;
+        display: grid;
+        gap: var(--space-2) var(--space-6);
+        padding-block: var(--space-5);
+    }
+    @media (min-width: 40rem) {
+        .measured__row {
+            grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+        }
+    }
+    .measured__figure {
+        display: grid;
+        margin: 0;
+    }
+    .measured__figure b {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-size: var(--step-5);
+        line-height: 1;
+        color: var(--paper);
+        font-variation-settings:
+            'opsz' 144,
+            'WONK' 1;
+    }
+    .measured__reading {
+        font-family: var(--font-type);
+        font-size: var(--step--1);
+        color: var(--amber-soft);
+        margin-top: var(--space-1);
+    }
+    .measured__what {
+        font-family: var(--font-display);
+        font-size: var(--step-2);
+        margin: 0 0 var(--space-2);
+    }
+    .measured__set {
+        margin: 0;
+        font-size: var(--step--1);
+    }
+    .measured__against {
+        display: block;
+        color: var(--amber-soft);
+        margin-top: 0.2em;
+    }
+    .measured__rule {
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+    }
+    .measured__plate {
+        margin: 0 0 var(--space-6);
+        max-width: 24rem;
+    }
+    .measured__plate figcaption {
+        margin-top: var(--space-3);
+    }
+    .measured__weak :global(.measured__figure) {
+        margin-bottom: var(--space-3);
+    }
+    .measured__note {
+        font-size: var(--step--1);
+        margin: var(--space-3) 0;
+    }
+    .measured__weak .marginalia {
+        margin: 0;
+    }
+</style>

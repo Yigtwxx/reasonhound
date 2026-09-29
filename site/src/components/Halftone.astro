@@ -1,0 +1,171 @@
+---
+/* A dithered engraving from the manifest. Two-level PNGs with a transparent
+   tone, so the field behind decides the second colour; the `dense` variant is
+   cross-faded in on hover, which reads as the print darkening under the hand. It
+   is fetched on the first hover, not with the page (scripts/halftone-hover.ts). */
+import { images, type GeneratedImage, type ImageId, type Tone } from '../data/images.generated';
+import { withBase } from '../lib/base';
+
+interface Props {
+    id: ImageId;
+    tone?: Tone;
+    sizes?: string;
+    hover?: boolean;
+    loading?: 'eager' | 'lazy';
+    /** Fade the edges out, for a detail lifted from a larger plate. */
+    vignette?: boolean;
+    /**
+     * Let the engraving drift behind its frame as the page scrolls, like a view
+     * through a window. `true` follows the plate's own pass through the viewport;
+     * `'page'` starts with the page, for a plate on screen from the first frame;
+     * `--name` follows a `view-timeline` an ancestor declares, for a plate whose own
+     * pass stalls (a sticky one) or whose parent clips it.
+     */
+    drift?: boolean | 'page' | `--${string}`;
+    // An ancestor may also set `--drift-range` (an `animation-range`) for a plate
+    // that never leaves the viewport, such as one at the foot of the page.
+    class?: string;
+}
+const {
+    id,
+    tone = 'paper',
+    sizes = '(min-width: 64rem) 40vw, 90vw',
+    hover = true,
+    loading = 'lazy',
+    vignette = false,
+    drift = false,
+    class: className,
+} = Astro.props;
+const image: GeneratedImage = images[id];
+const set = image.variants[tone];
+const dense = image.variants[`${tone}-dense`];
+if (!set)
+    throw new Error(`image "${id}" has no "${tone}" variant; add the tone to images.manifest.json`);
+const srcset = Object.entries(set)
+    .map(([w, src]) => `${withBase(src)} ${w}w`)
+    .join(', ');
+const denseSrcset = dense
+    ? Object.entries(dense)
+          .map(([w, src]) => `${withBase(src)} ${w}w`)
+          .join(', ')
+    : null;
+const fallback = withBase(set[720] ?? Object.values(set)[0] ?? '');
+const denseFallback = dense ? withBase(dense[720] ?? Object.values(dense)[0] ?? '') : '';
+const width = 720;
+const height = Math.round(720 / image.aspect);
+const timeline = typeof drift === 'string' && drift.startsWith('--') ? drift : null;
+---
+
+<span
+    class:list={[
+        'halftone',
+        {
+            'halftone--hover': hover && denseSrcset,
+            'halftone--vignette': vignette,
+            'halftone--drift': drift,
+            'halftone--drift-page': drift === 'page',
+        },
+        className,
+    ]}
+    style={`--aspect: ${image.aspect}${timeline ? `; --drift-timeline: ${timeline}` : ''}`}
+>
+    <img
+        class="halftone__img"
+        src={fallback}
+        srcset={srcset}
+        sizes={sizes}
+        width={width}
+        height={height}
+        alt={image.alt}
+        loading={loading}
+        decoding="async"
+    />
+    {hover && denseSrcset ? (
+        <img
+            class="halftone__img halftone__img--dense"
+            data-src={denseFallback}
+            data-srcset={denseSrcset}
+            sizes={sizes}
+            width={width}
+            height={height}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+        />
+    ) : null}
+</span>
+
+<style>
+    .halftone {
+        position: relative;
+        display: block;
+        aspect-ratio: var(--aspect);
+        overflow: hidden;
+    }
+    .halftone__img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        image-rendering: auto;
+    }
+    .halftone--vignette {
+        mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, black 40%, transparent 100%);
+    }
+    .halftone__img--dense {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 260ms ease;
+    }
+    @media (hover: hover) {
+        .halftone--hover.has-dense:hover .halftone__img--dense {
+            opacity: 1;
+        }
+    }
+    /* The window: the frame stays put and the engraving drifts behind it, so
+       scrolling down reads as stepping back and looking up through the glass. The
+       plate is enlarged just enough that the drift never shows an edge (scale 1.22
+       leaves 11% spare on each side; the drift uses at most 10%). Scroll-driven, so
+       there is no script and no scroll listener; a browser without scroll timelines,
+       or a reader who asked for less motion, gets the still print.
+
+       Longhands on purpose: given the shorthand, the minifier folds the timeline
+       into it, and browsers reject a timeline inside `animation`, which drops the
+       whole declaration. The timeline is named on the frame because `view()` on the
+       image would bind to the frame itself, whose `overflow: hidden` makes it a
+       scroll container that never scrolls. */
+    @supports (animation-timeline: view()) {
+        @media (prefers-reduced-motion: no-preference) {
+            .halftone--drift {
+                view-timeline: --plate block;
+            }
+            .halftone--drift .halftone__img {
+                animation-name: halftone-drift;
+                animation-timing-function: linear;
+                animation-fill-mode: both;
+                animation-timeline: var(--drift-timeline, --plate);
+                animation-range: var(--drift-range, cover 0% cover 100%);
+            }
+            /* Two columns: a plate beside the opening copy is on screen from the
+               first frame, so its drift starts with the page and ends at 70vh,
+               about when it leaves. In one column it sits under the copy and
+               follows its own pass like any other. */
+            @media (min-width: 64rem) {
+                .halftone--drift-page .halftone__img {
+                    animation-timeline: scroll(root block);
+                    animation-range: 0 70vh;
+                }
+            }
+        }
+    }
+    @keyframes halftone-drift {
+        from {
+            transform: translateY(-5%) scale(1.22);
+        }
+        to {
+            transform: translateY(10%) scale(1.22);
+        }
+    }
+</style>

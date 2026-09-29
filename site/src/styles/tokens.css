@@ -1,0 +1,87 @@
+/* Design tokens for the reasonhound site.
+   The page is a case file: warm paper with a faint glow of amber and ember in it,
+   dark ink, and the burnt orange of a hunting coat. Ember is the field and the
+   "stamp" that marks a verdict; amber is the scent trail, never text on the
+   field; slate is reserved for what was rejected or could not be checked. */
+:root {
+    /* paper and ink */
+    --paper: #faf1dc;
+    --paper-deep: #f3e5c8;
+    --paper-line: #e2d2b3;
+    --ink: #1f1a14;
+    --ink-soft: #473d33;
+    --ink-mute: #6b5f50; /* 5.53:1 on --paper */
+
+    /* the tint washed through the paper: amber from above, ember from below.
+       Kept faint enough that ember text stays above 4.5:1 anywhere on the page. */
+    --glow-amber: rgb(245 179 1 / 0.1);
+    --glow-ember: rgb(181 58 10 / 0.06);
+
+    /* the coat */
+    --ember: #b53a0a; /* 5.23:1 on --paper, AA for body text */
+    --ember-deep: #8a2b06;
+    --amber: #f5b301; /* strokes, fills and halftone only, never text on paper */
+    --amber-soft: #fdecc4; /* 5.03:1 on --ember, AA for text on the field */
+    --amber-wash: #fbe6b8;
+    --amber-deep: #7f5300; /* amber as text: 5.95:1 on --paper */
+
+    /* rejected, unverified */
+    --slate: #56606e; /* 5.67:1 on --paper */
+    --slate-soft: #b7c1ce;
+
+    /* verdict inks */
+    --ok: #2f6b2a; /* confirmed-safe / resolved, 5.9:1 on --paper */
+
+    /* terminal demo: the TUI's own palette. Amber for what is running and for
+       the red verifier, ember for a confirmed finding, slate for rejected. */
+    --tui-bg: #1b1712;
+    --tui-fg: #ece3d2;
+    --tui-ok: #a6d189;
+    --tui-warn: var(--amber);
+    --tui-bad: #ff7a45;
+    --tui-dim: #8c8578;
+    --tui-accent: var(--amber);
+    --tui-blue: #9fb4d0;
+
+    /* type */
+    --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+    --font-body: 'Inter Variable', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --font-type: 'Special Elite', 'American Typewriter', 'Courier New', monospace;
+
+    /* fluid type scale: ratio 1.2 at 360px → 1.25 at 1280px */
+    --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);
+    --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
+    --step-1: clamp(1.2rem, 1.1rem + 0.5vw, 1.44rem);
+    --step-2: clamp(1.44rem, 1.25rem + 0.9vw, 1.8rem);
+    --step-3: clamp(1.73rem, 1.4rem + 1.6vw, 2.25rem);
+    --step-4: clamp(2.07rem, 1.5rem + 2.7vw, 2.81rem);
+    --step-5: clamp(2.49rem, 1.6rem + 4.4vw, 3.52rem);
+    --step-6: clamp(2.99rem, 1.6rem + 6.8vw, 4.4rem);
+
+    /* fluid spacing */
+    --space-1: clamp(0.25rem, 0.23rem + 0.1vw, 0.31rem);
+    --space-2: clamp(0.5rem, 0.46rem + 0.2vw, 0.63rem);
+    --space-3: clamp(0.75rem, 0.69rem + 0.3vw, 0.94rem);
+    --space-4: clamp(1rem, 0.92rem + 0.4vw, 1.25rem);
+    --space-5: clamp(1.5rem, 1.38rem + 0.6vw, 1.88rem);
+    --space-6: clamp(2rem, 1.84rem + 0.8vw, 2.5rem);
+    --space-7: clamp(3rem, 2.76rem + 1.2vw, 3.75rem);
+    --space-8: clamp(4rem, 3.68rem + 1.6vw, 5rem);
+    --space-9: clamp(6rem, 5.5rem + 2.4vw, 7.5rem);
+
+    /* the pencil */
+    --stroke: 1.5px;
+    --stroke-bold: 2.5px;
+
+    /* layout: a case file with a notes column on wide screens */
+    --page-max: 72rem;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+    --margin-col: clamp(0px, 18vw, 16rem);
+    --measure: 62ch;
+
+    /* motion */
+    --draw-duration: 900ms;
+    --ease-pen: cubic-bezier(0.3, 0, 0.2, 1);
+    --ease-stamp: cubic-bezier(0.22, 1, 0.36, 1); /* ease-out-quint: lands, does not bounce */
+}

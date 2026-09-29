@@ -1,0 +1,144 @@
+---
+/* One beat of the hunt. The plate sits on the side the hound is running to:
+   odd beats plate-right, even beats plate-left. */
+import type { Beat } from '../data/loop';
+import Halftone from './Halftone.astro';
+import CaseLine from './case/CaseLine.astro';
+import { mark } from '../lib/mark';
+import { cite } from '../lib/cite';
+
+interface Props {
+    beat: Beat;
+}
+const { beat } = Astro.props;
+const flip = beat.n % 2 === 0;
+---
+
+<article
+    class:list={['beat', { 'beat--flip': flip }]}
+    id={`beat-${beat.slug}`}
+    aria-labelledby={`beat-${beat.slug}-title`}
+>
+    <div class="beat__text">
+        <p class="beat__n" aria-hidden="true">
+            <span>{String(beat.n).padStart(2, '0')}</span>
+            <span class="beat__verb">{beat.verb}</span>
+        </p>
+        <h3 id={`beat-${beat.slug}-title`} class="beat__title">
+            <span class="visually-hidden">{beat.verb}: </span>
+            {beat.question}
+        </h3>
+        <div class="beat__hound">
+            <Halftone
+                id={beat.vignette}
+                tone="paper"
+                hover={false}
+                vignette
+                sizes="10rem"
+                class="beat__hound-img"
+            />
+            <p class="marginalia">{beat.vignetteNote}</p>
+        </div>
+        {beat.body.map((p) => (
+            <p set:html={mark(p)} />
+        ))}
+        <p class="beat__agents">
+            <span class="beat__agents-label">dispatched</span>
+            {beat.agents.map((a) => (
+                <code>{a}</code>
+            ))}
+        </p>
+    </div>
+    <div class="beat__side">
+        <figure class="beat__plate">
+            <Halftone id={beat.plate} tone="paper" drift sizes="(min-width: 64rem) 38vw, 92vw" />
+            <figcaption class="caption beat__caption" set:html={cite(beat.plateCaption)} />
+        </figure>
+        <div class="beat__example">
+            <CaseLine line={beat.example} />
+        </div>
+    </div>
+</article>
+
+<style>
+    .beat {
+        display: grid;
+        gap: var(--space-6);
+        align-items: start;
+        padding-block: var(--space-7);
+        border-top: 1px dashed var(--paper-line);
+    }
+    @media (min-width: 64rem) {
+        .beat {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: var(--space-8);
+        }
+        .beat--flip .beat__text {
+            order: 2;
+        }
+    }
+    .beat__n {
+        display: flex;
+        align-items: baseline;
+        gap: var(--space-3);
+        font-family: var(--font-display);
+        font-size: var(--step-6);
+        line-height: 1;
+        color: var(--ember);
+        margin: 0 0 var(--space-2);
+        font-variation-settings:
+            'opsz' 144,
+            'WONK' 1;
+    }
+    .beat__verb {
+        font-family: var(--font-type);
+        font-size: var(--step-0);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+    }
+    .beat__title {
+        font-size: var(--step-4);
+        max-width: 16ch;
+    }
+    .beat__hound {
+        display: grid;
+        grid-template-columns: 10rem 1fr;
+        gap: var(--space-4);
+        align-items: center;
+        margin-block: var(--space-4) var(--space-5);
+    }
+    .beat__hound :global(.beat__hound-img) {
+        width: 10rem;
+    }
+    .beat__hound .marginalia {
+        max-width: 30ch;
+        margin: 0;
+    }
+    .beat__agents {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        align-items: baseline;
+        font-size: var(--step--1);
+        margin-top: var(--space-5);
+    }
+    .beat__agents-label {
+        font-family: var(--font-type);
+        color: var(--ink-mute);
+        margin-right: var(--space-1);
+    }
+    .beat__side {
+        display: grid;
+        gap: var(--space-5);
+    }
+    .beat__plate {
+        margin: 0;
+    }
+    .beat__caption {
+        margin-top: var(--space-3);
+    }
+    .beat__example {
+        margin-inline: var(--space-3);
+    }
+</style>

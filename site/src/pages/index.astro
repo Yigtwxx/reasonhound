@@ -1,0 +1,263 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import Terminal from '../components/Terminal.astro';
+import Beat from '../components/Beat.astro';
+import Pack from '../components/Pack.astro';
+import Vote from '../components/Vote.astro';
+import Rules from '../components/Rules.astro';
+import Band from '../components/Band.astro';
+import Byok from '../components/Byok.astro';
+import Report from '../components/Report.astro';
+import Measured from '../components/Measured.astro';
+import Limits from '../components/Limits.astro';
+import Ci from '../components/Ci.astro';
+import Footer from '../components/Footer.astro';
+import ScentTrail from '../components/case/ScentTrail.astro';
+import SketchArrow from '../components/sketch/SketchArrow.astro';
+import { beats } from '../data/loop';
+import { agentCount } from '../data/agents';
+
+const title = 'reasonhound — Follows the scent. Not the checklist.';
+const description =
+    'reasonhound is an AI-assisted security scanner that reasons like a senior researcher: it forms hypotheses about your web app or API, probes them, rethinks when the trail goes cold, and writes every finding to Markdown with the reasoning behind it. Bring your own model.';
+
+const notes = [
+    {
+        id: 'pack',
+        text: 'One lead, and only the hunters this codebase needs.',
+    },
+    {
+        id: 'pivot',
+        text: 'Not here: the ORM binds it. The hunter writes down why, and moves to the raw-SQL path next door.',
+    },
+    {
+        id: 'verdict',
+        text: 'Red tries to prove it, blue tries to break it. Only what survives both is stamped CONFIRMED.',
+    },
+    {
+        id: 'security',
+        text: 'The last lines are the leash: egress locked, secrets masked, every probe harmless and logged.',
+    },
+];
+---
+
+<Layout title={title} description={description}>
+    <Nav />
+    <div class="hero-shell" data-nav-hero>
+        <Hero />
+    </div>
+    <main id="main">
+        <ScentTrail />
+        <Section id="hunt" exhibit="Exhibit A" title="A hunt, as it happens.">
+            <div class="run" data-run>
+                <Terminal />
+                <aside class="run__notes" aria-label="What to look at in the hunt" data-run-notes>
+                    <p class="marginalia run__lede" data-run-lede>
+                        A small FastAPI shop, 142 files. The ORM escapes almost everything. One
+                        export path does not.
+                    </p>
+                    <div class="run__note" data-note-for="wizard">
+                        <SketchArrow direction="curve-left" size={56} />
+                        <p class="marginalia">
+                            Five questions before a file is read. Step 2 is asked every run, and
+                            never saved.
+                        </p>
+                    </div>
+                    {notes.map((n) => (
+                        <div class="run__note" data-note-for={n.id}>
+                            <SketchArrow direction="curve-left" size={56} />
+                            <p class="marginalia">{n.text}</p>
+                        </div>
+                    ))}
+                </aside>
+            </div>
+        </Section>
+
+        <Section
+            id="loop"
+            exhibit="File 01"
+            title="Hypothesize. Probe. Reflect. Pivot."
+            margin="A checklist ends when the list runs out. A hunt ends when the budget does."
+        >
+            {beats.map((beat) => (
+                <Beat beat={beat} />
+            ))}
+        </Section>
+
+        <Section
+            id="pack"
+            exhibit="File 02"
+            ruled
+            title={`${agentCount} noses, one lead.`}
+            margin="Each agent gets a narrow toolkit and a strict schema. None of them can both read your files and reach the network."
+        >
+            <Pack />
+        </Section>
+
+        <Section
+            id="vote"
+            exhibit="File 03"
+            field="ember"
+            title="Two votes before a verdict."
+            margin="A finding nobody tried to disprove is a guess. Every one here was argued against first."
+        >
+            <Vote />
+        </Section>
+
+        <Section
+            id="rules"
+            exhibit="File 04"
+            title="Seven things it will never do."
+            margin="Scanned code is hostile input. These hold even when the code in front of it says otherwise."
+        >
+            <Rules />
+        </Section>
+
+        <Band
+            id="eustace"
+            caption="Albrecht Dürer, *Saint Eustace* (detail), c. 1501. The pack waits for the word."
+        />
+
+        <Section
+            id="byok"
+            exhibit="File 05"
+            title="Bring your own brain."
+            margin="No bundled model, no account, no key of ours. It reads your key from the environment and nothing else."
+        >
+            <Byok />
+        </Section>
+
+        <Section
+            id="report"
+            exhibit="File 06"
+            ruled
+            title="What it leaves behind."
+            margin="Plain Markdown in your repo: readable in a code review, diffable in git, no dashboard to log into."
+        >
+            <Report />
+        </Section>
+
+        <Section
+            id="measured"
+            exhibit="File 07"
+            field="ember"
+            title="Measured, not claimed."
+            margin="Every figure comes from reasonhound-bench, re-run on each release. The boxed row is the one to read first."
+        >
+            <Measured />
+        </Section>
+
+        <Section
+            id="limits"
+            exhibit="File 08"
+            title="Where the trail goes cold."
+            margin="A scanner that shows its reasoning also has to say where its nose stops."
+        >
+            <Limits />
+        </Section>
+
+        <Section
+            id="ci"
+            exhibit="File 09"
+            ruled
+            title="The same hunt behind a pipe."
+            margin="In CI the flags answer the wizard's questions, and the exit code is the verdict."
+        >
+            <Ci />
+        </Section>
+    </main>
+    <Footer />
+</Layout>
+
+<script>
+    import { initRunNotes } from '../scripts/run-notes';
+    initRunNotes();
+</script>
+
+<style>
+    .hero-shell {
+        --field: var(--ember);
+        background: var(--ember);
+        color: var(--paper);
+    }
+    main {
+        position: relative;
+    }
+    /* Two columns only from 80rem: narrower, the notes column is too slim for each
+       note to sit beside its own lines, so they go under the terminal instead. */
+    .run {
+        display: grid;
+        gap: var(--space-5);
+        align-items: start;
+    }
+    @media (min-width: 80rem) {
+        .run {
+            grid-template-columns: minmax(0, 1fr) var(--margin-col);
+            gap: var(--space-6);
+        }
+    }
+    .run__notes {
+        display: grid;
+        gap: var(--space-5);
+        padding-top: var(--space-6);
+    }
+    @media (min-width: 80rem) {
+        .run__notes {
+            grid-template-rows: repeat(6, auto);
+            align-content: space-between;
+            height: 100%;
+        }
+    }
+    .run__note {
+        display: flex;
+        gap: var(--space-2);
+        align-items: flex-start;
+    }
+    .run__note .marginalia,
+    .run__lede {
+        margin: 0;
+    }
+    /* The arrow keeps its size: a long note would otherwise squeeze it to a tick. */
+    .run__note :global(.sketch-arrow) {
+        flex: none;
+    }
+    /* scripts/run-notes.ts: each note pinned beside the line it points at, shown
+       once that line has been typed. */
+    @media (min-width: 80rem) {
+        .run--anchored .run__notes {
+            display: block;
+            position: relative;
+            height: auto;
+            padding-top: 0;
+        }
+        .run--anchored .run__note {
+            position: absolute;
+            inset-inline: 0;
+            top: var(--note-top, 0);
+            opacity: 0;
+            transition:
+                opacity 400ms ease,
+                top 300ms ease;
+        }
+        .run--anchored .run__note.is-shown {
+            opacity: 1;
+        }
+        /* A little smaller than elsewhere, so each note is short enough to sit on
+           its own lines without covering its neighbour's. */
+        .run--anchored .run__note :global(.sketch-arrow) {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        .run--anchored .run__note .marginalia {
+            font-size: var(--step--1);
+        }
+    }
+    @media (min-width: 80rem) and (prefers-reduced-motion: reduce) {
+        .run--anchored .run__note {
+            transition: none;
+        }
+    }
+</style>

@@ -1,0 +1,73 @@
+---
+/* The scent trail: paw prints that wander down the page — down one margin,
+   breaking off, cutting across the middle to the other side — laid as far as
+   the reader has scrolled. scripts/trail.ts places the prints from the
+   sections' real positions; the reveal is CSS, a band whose height follows the
+   page's scroll. A browser without scroll-driven animations, or a reader who
+   asked for less motion, sees the whole trail. Only where the page has margins
+   wide enough to walk in. */
+---
+
+<svg class="trail" aria-hidden="true" focusable="false" data-trail>
+    <defs>
+        <g id="paw">
+            <ellipse cx="0" cy="5" rx="5.2" ry="4.4"></ellipse>
+            <ellipse cx="-5.6" cy="-2" rx="1.9" ry="2.5"></ellipse>
+            <ellipse cx="-2" cy="-5" rx="1.9" ry="2.6"></ellipse>
+            <ellipse cx="2" cy="-5" rx="1.9" ry="2.6"></ellipse>
+            <ellipse cx="5.6" cy="-2" rx="1.9" ry="2.5"></ellipse>
+        </g>
+    </defs>
+    <g data-trail-prints></g>
+</svg>
+
+<script>
+    import { initTrail } from '../../scripts/trail';
+    initTrail();
+</script>
+
+<style>
+    @property --trail {
+        syntax: '<percentage>';
+        inherits: false;
+        initial-value: 100%;
+    }
+    .trail {
+        display: none;
+    }
+    @media (min-width: 84rem) {
+        .trail {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: visible;
+            fill: var(--amber);
+            opacity: 0.85;
+            /* The head of the trail fades in over its last stretch. */
+            mask-image: linear-gradient(to bottom, black calc(100% - 160px), transparent);
+            mask-repeat: no-repeat;
+            mask-size: 100% var(--trail);
+        }
+    }
+    @supports (animation-timeline: scroll()) {
+        @media (prefers-reduced-motion: no-preference) {
+            .trail {
+                animation-name: trail-lay;
+                animation-timing-function: linear;
+                animation-fill-mode: both;
+                animation-timeline: scroll(root block);
+            }
+        }
+    }
+    @keyframes trail-lay {
+        from {
+            --trail: 6%;
+        }
+        to {
+            --trail: 100%;
+        }
+    }
+</style>

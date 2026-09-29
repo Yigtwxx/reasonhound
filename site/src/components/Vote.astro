@@ -1,0 +1,217 @@
+---
+/* The double vote on the ember field. Two greyhounds on one leash for the two
+   verifiers, the huntsman holding them for the arbiter. */
+import Halftone from './Halftone.astro';
+import Stamp from './case/Stamp.astro';
+import SketchBox from './sketch/SketchBox.astro';
+
+const voters = [
+    {
+        name: 'red-verifier',
+        verb: 'argues it is real',
+        body: 'Reads the path again from scratch, without the hunter’s notes, and builds the smallest request that would prove it. With the dynamic phase on, it sends that request — harmless, logged.',
+        says: '“+2.04 s on sort=(CASE WHEN 1=1 THEN pg_sleep(2) END), five of five.”',
+    },
+    {
+        name: 'blue-refuter',
+        verb: 'argues it is not',
+        body: 'Looks for the reason it cannot work: a bind, an allowlist, a middleware, a framework default. It is scored on the false positives it kills.',
+        says: '“No allowlist on sort, no bind on the raw path. Could not refute.”',
+    },
+    {
+        name: 'arbiter',
+        verb: 'signs what survives',
+        body: 'Weighs both arguments and the probe, assigns a status and a confidence, and keeps the losing side’s reasoning in the file. Nothing it signs is a black box.',
+        says: '“Confirmed. Confidence high. CVSS 9.1.”',
+    },
+];
+
+const statuses = [
+    {
+        label: 'Confirmed',
+        tilt: -4,
+        what: 'survived refutation; with a live app, a harmless probe backed it up',
+    },
+    {
+        label: 'Suspected',
+        tilt: 3,
+        what: 'plausible, not proven: the reasoning is there, the proof is not',
+    },
+    {
+        label: 'Rejected',
+        tilt: -2,
+        what: 'refuted, and kept in the trace with the reason, so it is not raised again',
+    },
+    {
+        label: 'Resolved',
+        tilt: 2,
+        what: 'confirmed on an earlier run, gone on this one: smart merge marks it fixed',
+    },
+];
+---
+
+<div class="vote">
+    <figure class="vote__figure">
+        <Halftone id="pair" tone="ember" drift sizes="(min-width: 64rem) 34vw, 92vw" />
+        <figcaption class="caption vote__caption">
+            Frederick Bloemaert after Abraham Bloemaert, <cite>Windhonden</cite>, c. 1650. Two
+            hounds on one leash, one hand deciding.
+        </figcaption>
+    </figure>
+    <ol class="vote__voters">
+        {voters.map((v, i) => (
+            <li class="voter">
+                <p class="voter__n" aria-hidden="true">
+                    {['I', 'II', 'III'][i]}
+                </p>
+                <h3 class="voter__name">
+                    <code>{v.name}</code>
+                    <span class="voter__verb">{v.verb}</span>
+                </h3>
+                <p class="voter__body">{v.body}</p>
+                <p class="voter__says">{v.says}</p>
+            </li>
+        ))}
+    </ol>
+</div>
+
+<div class="vote__verdicts">
+    <SketchBox tone="paper" padding="md" draw fill>
+        <p class="vote__formula">
+            Every finding is scored on two axes: <b>severity</b>{' '}
+            <span class="vote__small">(CVSS 0.0–10.0)</span>
+            {' × '}
+            <b>confidence</b> <span class="vote__small">(low · medium · high)</span>. A critical
+            with low confidence is reported as exactly that.
+        </p>
+        <dl class="vote__statuses">
+            {statuses.map((s) => (
+                <div class="vote__status">
+                    <dt>
+                        <Stamp label={s.label} tone="paper" tilt={s.tilt} size="lg" />
+                    </dt>
+                    <dd>{s.what}</dd>
+                </div>
+            ))}
+        </dl>
+    </SketchBox>
+</div>
+
+<style>
+    .vote {
+        display: grid;
+        gap: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .vote {
+            grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+            gap: var(--space-8);
+            align-items: start;
+        }
+        .vote__figure {
+            position: sticky;
+            top: 5rem;
+        }
+    }
+    .vote__figure {
+        margin: 0;
+    }
+    .vote__caption {
+        margin-top: var(--space-3);
+    }
+    .vote__voters {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: var(--space-6);
+        counter-reset: voter;
+    }
+    .voter {
+        display: grid;
+        grid-template-columns: 3rem minmax(0, 1fr);
+        column-gap: var(--space-4);
+        padding-bottom: var(--space-5);
+        border-bottom: 1px dashed color-mix(in srgb, var(--paper) 35%, transparent);
+    }
+    .voter:last-child {
+        border-bottom: 0;
+    }
+    .voter > :not(.voter__n) {
+        grid-column: 2;
+    }
+    .voter__n {
+        grid-row: 1 / span 3;
+        font-family: var(--font-display);
+        font-size: var(--step-3);
+        line-height: 1;
+        color: var(--amber-soft);
+        margin: 0;
+    }
+    .voter__name {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.2em 0.8em;
+        font-size: var(--step-2);
+        margin: 0 0 var(--space-2);
+        color: var(--paper);
+    }
+    .voter__name code {
+        font-size: 0.8em;
+        background: none;
+        padding: 0;
+        color: var(--paper);
+    }
+    .voter__verb {
+        font-family: var(--font-type);
+        font-size: var(--step-0);
+        color: var(--amber-soft);
+    }
+    .voter__body {
+        margin: 0 0 var(--space-2);
+    }
+    .voter__says {
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        color: var(--amber-soft);
+        margin: 0;
+    }
+    .vote__verdicts {
+        margin-top: var(--space-7);
+    }
+    .vote__formula {
+        font-size: var(--step-1);
+        line-height: 1.4;
+        max-width: 60ch;
+        margin-bottom: var(--space-6);
+    }
+    .vote__small {
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        color: var(--amber-soft);
+    }
+    .vote__statuses {
+        display: grid;
+        gap: var(--space-5) var(--space-6);
+        margin: 0;
+    }
+    @media (min-width: 48rem) {
+        .vote__statuses {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+    .vote__status {
+        display: grid;
+        gap: var(--space-3);
+        align-content: start;
+    }
+    .vote__status dt {
+        min-height: 3rem;
+    }
+    .vote__status dd {
+        margin: 0;
+        font-size: var(--step--1);
+        color: var(--amber-soft);
+    }
+</style>

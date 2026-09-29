@@ -1,0 +1,86 @@
+---
+/* One line from the case file, laid out the way the report lays it out: the
+   stamp, severity and CVSS, class, file:line and route; then the notes under it
+   — why, what next, and the red / blue / arbiter votes. */
+import type { CaseLine } from '../../data/loop';
+import Stamp from './Stamp.astro';
+import SketchBox from '../sketch/SketchBox.astro';
+interface Props {
+    line: CaseLine;
+    caption?: string;
+}
+const { line, caption } = Astro.props;
+---
+
+<SketchBox padding="sm" draw class="caseline">
+    <div class="caseline__head">
+        <Stamp label={line.status} tone={line.tone} size="sm" tilt={-2} />
+        {line.severity ? <span class="caseline__sev">{line.severity}</span> : null}
+        <span class="caseline__cls">{line.cls}</span>
+        <span class="caseline__where">{line.where}</span>
+    </div>
+    {line.route ? <p class="caseline__route">{line.route}</p> : null}
+    {line.notes?.map((n) => (
+        <p class="caseline__note">
+            <span class:list={['caseline__who', `caseline__who--${n.who ?? 'why'}`]}>
+                {n.who ?? 'why'}
+            </span>
+            <span>{n.text}</span>
+        </p>
+    ))}
+    {caption ? <p class="caseline__caption">{caption}</p> : null}
+</SketchBox>
+
+<style>
+    .caseline {
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        line-height: 1.55;
+    }
+    .caseline__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4em 0.8em;
+    }
+    .caseline__sev {
+        color: var(--ember);
+        font-weight: 500;
+    }
+    .caseline__cls {
+        font-weight: 500;
+    }
+    .caseline__where {
+        color: var(--ink-mute);
+    }
+    .caseline__route {
+        margin: 0.5em 0 0;
+        color: var(--ink-soft);
+        overflow-wrap: anywhere;
+    }
+    .caseline__note {
+        display: grid;
+        grid-template-columns: 5.5em 1fr;
+        gap: 0.6em;
+        margin: 0.35em 0 0;
+        max-width: none;
+    }
+    .caseline__who {
+        color: var(--ink-mute);
+    }
+    .caseline__who--red {
+        color: var(--ember);
+    }
+    .caseline__who--blue {
+        color: var(--slate);
+    }
+    .caseline__who--arbiter,
+    .caseline__who--next {
+        color: var(--amber-deep);
+    }
+    .caseline__caption {
+        font-family: var(--font-type);
+        color: var(--ink-mute);
+        margin: var(--space-3) 0 0;
+    }
+</style>

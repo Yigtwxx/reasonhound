@@ -1,0 +1,104 @@
+---
+/* The social card, rendered as a page and captured into public/social-preview.jpg
+   (the site's link preview) and .github/social-preview.jpg (GitHub's), see
+   scripts/og.md. 1280x640, GitHub's recommended size. Not linked, not indexed,
+   not in the sitemap. */
+import '../styles/global.css';
+import PencilDefs from '../components/sketch/PencilDefs.astro';
+import Halftone from '../components/Halftone.astro';
+import SketchUnderline from '../components/sketch/SketchUnderline.astro';
+import Stamp from '../components/case/Stamp.astro';
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>social</title>
+    </head>
+    <body>
+        <PencilDefs />
+        <div class="card">
+            <div class="copy">
+                <p class="kicker">reasonhound</p>
+                <h1 class="title">
+                    Follows the <SketchUnderline tone="amber">scent.</SketchUnderline>
+                    <br />
+                    Not the checklist.
+                </h1>
+                <p class="marginalia note">
+                    An AI security scanner that forms a hypothesis, probes it, and rethinks when the
+                    trail goes cold.
+                </p>
+                <p class="foot">bring your own model · runs on your machine · open source</p>
+            </div>
+            <div class="plate">
+                <Halftone id="diana" tone="ember" hover={false} loading="eager" sizes="620px" />
+                <span class="stamp-wrap">
+                    <Stamp label="on the scent" tone="bad" tilt={-6} size="lg" land={false} />
+                </span>
+            </div>
+        </div>
+    </body>
+</html>
+
+<style is:global>
+    html,
+    body {
+        margin: 0;
+        width: 1280px;
+        height: 640px;
+        overflow: hidden;
+        background: var(--ember);
+    }
+    body::before,
+    body::after {
+        display: none;
+    }
+    .card {
+        --pen: var(--amber-soft);
+        position: relative;
+        width: 1280px;
+        height: 640px;
+        display: grid;
+        grid-template-columns: 600px 1fr;
+        align-items: center;
+        gap: 40px;
+        padding: 0 64px;
+        box-sizing: border-box;
+        background: var(--ember);
+        color: var(--paper);
+    }
+    .kicker {
+        font-family: var(--font-mono);
+        font-size: 22px;
+        color: var(--amber-soft);
+        margin: 0 0 18px;
+    }
+    .title {
+        font-size: 76px;
+        line-height: 1.02;
+        color: var(--paper);
+        margin: 0 0 28px;
+    }
+    .note {
+        font-size: 22px;
+        max-width: 30ch;
+        margin: 0 0 28px;
+    }
+    .foot {
+        font-family: var(--font-mono);
+        font-size: 16px;
+        color: var(--amber-soft);
+        margin: 0;
+    }
+    .plate {
+        position: relative;
+    }
+    .stamp-wrap {
+        position: absolute;
+        right: 5%;
+        top: 9%;
+    }
+</style>

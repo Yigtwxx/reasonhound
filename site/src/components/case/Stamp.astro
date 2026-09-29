@@ -1,0 +1,82 @@
+---
+/* A verdict word as a rubber stamp: double rule, worn ink, a few degrees off
+   square. On scroll it lands with a thump (scripts/stamps.ts); without script or
+   with reduced motion it is simply there. Tones follow reasonhound's statuses. */
+export type StampTone = 'bad' | 'warn' | 'dim' | 'ok' | 'paper';
+interface Props {
+    label: string;
+    tone?: StampTone;
+    /** Degrees off square; alternate signs so a row of stamps looks hand-set. */
+    tilt?: number;
+    size?: 'sm' | 'md' | 'lg';
+    land?: boolean;
+}
+const { label, tone = 'bad', tilt = -3, size = 'md', land = true } = Astro.props;
+---
+
+<span
+    class:list={['stamp', `stamp--${tone}`, `stamp--${size}`]}
+    style={`--tilt: ${tilt}deg`}
+    data-stamp={land ? '' : undefined}
+>
+    {label}
+</span>
+
+<style>
+    .stamp {
+        --stamp-ink: var(--ember);
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        line-height: 1;
+        white-space: nowrap;
+        color: var(--stamp-ink);
+        border: 2px solid currentColor;
+        outline: 1px solid currentColor;
+        outline-offset: 2px;
+        border-radius: 3px;
+        padding: 0.42em 0.7em 0.36em;
+        transform: rotate(var(--tilt));
+        /* worn ink: a coarse noise knocks small holes out of the impression */
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 2.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        mask-size: 120px 120px;
+    }
+    .stamp--sm {
+        font-size: 0.72rem;
+    }
+    .stamp--md {
+        font-size: 0.85rem;
+    }
+    .stamp--lg {
+        font-size: clamp(1rem, 0.9rem + 0.6vw, 1.35rem);
+        border-width: 3px;
+        outline-offset: 3px;
+    }
+    .stamp--warn {
+        --stamp-ink: var(--amber-deep);
+    }
+    .stamp--dim {
+        --stamp-ink: var(--slate);
+    }
+    .stamp--ok {
+        --stamp-ink: var(--ok);
+    }
+    .stamp--paper {
+        --stamp-ink: var(--paper);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        :global(.js) .stamp[data-stamp] {
+            opacity: 0;
+            transform: rotate(calc(var(--tilt) - 14deg)) scale(1.9);
+        }
+        :global(.js) .stamp[data-stamp].is-stamped {
+            opacity: 1;
+            transform: rotate(var(--tilt)) scale(1);
+            transition:
+                opacity 120ms linear var(--stamp-delay, 0ms),
+                transform 420ms var(--ease-stamp) var(--stamp-delay, 0ms);
+        }
+    }
+</style>

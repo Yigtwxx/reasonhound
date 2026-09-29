@@ -1,0 +1,161 @@
+---
+/* The same hunt behind a pipe: the wizard's questions as flags, the exit code
+   as the verdict, and the Actions job that puts it on every pull request. */
+import { ciCommands, exitCodes, workflow } from '../data/commands';
+import SketchBox from './sketch/SketchBox.astro';
+import SketchArrow from './sketch/SketchArrow.astro';
+---
+
+<div class="ci">
+    <div class="ci__main">
+        <SketchBox padding="md" draw class="ci__commands">
+            <div class="ci__pre" role="figure" aria-label="Command examples">
+                {ciCommands.map((c) => (
+                    <div class="ci__line">
+                        <span class="ci__prompt" aria-hidden="true">
+                            $&nbsp;
+                        </span>
+                        <span class="ci__cmd">{c.cmd}</span>
+                        <span class="ci__comment">{`# ${c.comment}`}</span>
+                    </div>
+                ))}
+            </div>
+        </SketchBox>
+        <div class="ci__exit">
+            <div class="ci__exit-arrow">
+                <SketchArrow direction="curve-down" size={52} />
+                <p class="marginalia">the exit code is the verdict — nothing to parse</p>
+            </div>
+            <table class="ci__table">
+                <caption class="visually-hidden">Exit codes</caption>
+                <tbody>
+                    {exitCodes.map((e) => (
+                        <tr>
+                            <th scope="row">
+                                <code>{e.code}</code>
+                            </th>
+                            <td>{e.meaning}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+        <div class="ci__prose">
+            <p>
+                <code>--plain</code> swaps the live monitor for one line per event, and nothing asks
+                a question: <code>--authorized</code> is the authorization, given on purpose, in the
+                job file where a reviewer can see it. <code>--aggressive</code> is refused outright
+                without a terminal to confirm it on.
+            </p>
+            <p>
+                <code>--format sarif</code> writes one result per finding at its{' '}
+                <code>file:line</code>, with the status, CVSS and confidence in its properties;
+                GitHub code scanning and VS Code read it as is. <code>--fail-on</code> counts
+                confirmed findings only — a suspect never fails a build.
+            </p>
+        </div>
+    </div>
+    <figure class="ci__workflow">
+        <figcaption class="ci__file">.github/workflows/reasonhound.yml</figcaption>
+        <pre><code>{workflow}</code></pre>
+    </figure>
+</div>
+
+<style>
+    .ci {
+        display: grid;
+        gap: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .ci {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: var(--space-7);
+            align-items: start;
+        }
+    }
+    .ci__main {
+        display: grid;
+        gap: var(--space-6);
+    }
+    .ci__pre {
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        line-height: 1.6;
+        overflow-x: auto;
+    }
+    .ci__line {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        padding-block: 0.25em;
+    }
+    .ci__cmd {
+        white-space: nowrap;
+    }
+    .ci__comment {
+        grid-column: 2;
+        color: var(--ink-mute);
+    }
+    .ci__prompt {
+        color: var(--ink-mute);
+    }
+    .ci__exit {
+        display: grid;
+        gap: var(--space-4);
+    }
+    @media (min-width: 48rem) {
+        .ci__exit {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+            align-items: center;
+        }
+    }
+    .ci__exit-arrow {
+        display: flex;
+        gap: var(--space-2);
+        align-items: flex-start;
+    }
+    .ci__exit-arrow :global(svg) {
+        flex: none;
+    }
+    .ci__exit-arrow .marginalia {
+        margin: 0;
+    }
+    .ci__table {
+        border-collapse: collapse;
+    }
+    .ci__table th,
+    .ci__table td {
+        text-align: left;
+        padding: var(--space-2) var(--space-3);
+        border-bottom: 1px dashed var(--paper-line);
+        vertical-align: top;
+    }
+    .ci__table th code {
+        font-size: var(--step-1);
+        background: none;
+        padding: 0;
+        color: var(--ember);
+    }
+    .ci__prose p {
+        color: var(--ink-soft);
+    }
+    .ci__workflow {
+        margin: 0;
+        background: var(--tui-bg);
+        color: var(--tui-fg);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px -30px color-mix(in srgb, var(--ink) 60%, transparent);
+    }
+    .ci__file {
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        color: var(--tui-dim);
+        padding: 0.6em 1em;
+        border-bottom: 1px solid color-mix(in srgb, var(--tui-fg) 12%, transparent);
+    }
+    .ci__workflow pre {
+        padding: var(--space-4);
+        font-size: 0.72rem;
+        line-height: 1.6;
+    }
+</style>

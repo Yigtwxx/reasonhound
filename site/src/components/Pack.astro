@@ -1,0 +1,178 @@
+---
+/* The pack: every agent by name, grouped as the lead dispatches them, with the
+   toolkit each one is limited to. The Ridinger plate is the picture for it: one
+   huntsman, one horn, many noses. */
+import { packs, agentCount } from '../data/agents';
+import Halftone from './Halftone.astro';
+import SketchArrow from './sketch/SketchArrow.astro';
+---
+
+<div class="pack">
+    <figure class="pack__figure">
+        <Halftone id="par-force" tone="paper" drift sizes="(min-width: 64rem) 30vw, 92vw" />
+        <figcaption class="caption pack__caption">
+            Johann Elias Ridinger, <cite>Huntsman with a Pack of Hounds</cite>. One horn, many
+            noses.
+        </figcaption>
+        <div class="pack__aside">
+            <SketchArrow direction="curve-right" size={52} />
+            <p class="marginalia">
+                {agentCount} agents. A typical scan wakes 8 to 14 of them; the rest stay in the
+                kennel.
+            </p>
+        </div>
+    </figure>
+    <div class="pack__groups">
+        {packs.map((group) => (
+            <section
+                class:list={['pack__group', `pack__group--${group.id}`]}
+                aria-labelledby={`pack-${group.id}`}
+            >
+                <header class="pack__head">
+                    <h3 id={`pack-${group.id}`} class="pack__title">
+                        {group.title}
+                        <span class="pack__count">{group.agents.length}</span>
+                    </h3>
+                    <p class="pack__note">{group.note}</p>
+                </header>
+                <ul class="pack__list">
+                    {group.agents.map((a) => (
+                        <li class="pack__agent">
+                            <code class="pack__name">{a.name}</code>
+                            <span class="pack__role">{a.role}</span>
+                            <span class="pack__kit">{a.kit}</span>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+        ))}
+        <p class="pack__restricted">
+            <b>Seven more are restricted.</b> Off by default; enabled one by one with{' '}
+            <code>--enable-agent</code>, behind <code>--aggressive</code> and an interactive
+            confirmation no flag can skip. Every action they take is written to{' '}
+            <code>audit.log</code>.
+        </p>
+    </div>
+</div>
+
+<style>
+    .pack {
+        display: grid;
+        gap: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .pack {
+            grid-template-columns: minmax(0, 2fr) minmax(0, 5fr);
+            gap: var(--space-7);
+            align-items: start;
+        }
+        .pack__figure {
+            position: sticky;
+            top: 5rem;
+        }
+    }
+    .pack__figure {
+        margin: 0;
+        max-width: 26rem;
+    }
+    .pack__caption {
+        margin-top: var(--space-3);
+    }
+    .pack__aside {
+        display: flex;
+        gap: var(--space-2);
+        align-items: flex-start;
+        margin-top: var(--space-5);
+    }
+    .pack__aside :global(svg) {
+        flex: none;
+    }
+    .pack__aside .marginalia {
+        margin: 0;
+    }
+    .pack__groups {
+        display: grid;
+        gap: var(--space-6) var(--space-6);
+    }
+    @media (min-width: 48rem) {
+        .pack__groups {
+            grid-template-columns: 1fr 1fr;
+        }
+        .pack__group--lead {
+            grid-column: 1 / -1;
+        }
+        .pack__group--hunters {
+            grid-row: span 2;
+        }
+    }
+    .pack__group {
+        border-top: 2px solid var(--ink);
+        padding-top: var(--space-3);
+    }
+    .pack__group--lead {
+        border-top-color: var(--ember);
+    }
+    .pack__head {
+        margin-bottom: var(--space-3);
+    }
+    .pack__title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        font-size: var(--step-2);
+        margin: 0 0 var(--space-1);
+    }
+    .pack__count {
+        font-family: var(--font-type);
+        font-size: var(--step-0);
+        color: var(--ember);
+    }
+    .pack__note {
+        font-family: var(--font-type);
+        font-size: var(--step--1);
+        color: var(--ink-mute);
+        margin: 0;
+    }
+    .pack__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+    }
+    .pack__agent {
+        display: grid;
+        gap: 0.1em;
+        padding-block: var(--space-2);
+        border-bottom: 1px dashed var(--paper-line);
+    }
+    .pack__name {
+        justify-self: start;
+        font-size: var(--step--1);
+        font-weight: 500;
+        background: none;
+        padding: 0;
+        color: var(--ink);
+    }
+    .pack__group--lead .pack__name {
+        color: var(--ember);
+    }
+    .pack__role {
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+        line-height: 1.4;
+    }
+    .pack__kit {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: var(--ink-mute);
+    }
+    .pack__restricted {
+        grid-column: 1 / -1;
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+        max-width: 64ch;
+        padding: var(--space-3) var(--space-4);
+        border: 1px dashed var(--slate);
+        margin: 0;
+    }
+</style>

@@ -1,0 +1,162 @@
+---
+/* Bring your own brain: the four providers as a register, and the three caps
+   every run is held to. */
+import { providers, limits } from '../data/providers';
+import Stamp from './case/Stamp.astro';
+---
+
+<div class="byok">
+    <table class="byok__table">
+        <caption class="visually-hidden">Providers, keys and default models</caption>
+        <thead>
+            <tr>
+                <th scope="col">Provider</th>
+                <th scope="col">Reads</th>
+                <th scope="col">Default model</th>
+            </tr>
+        </thead>
+        <tbody>
+            {providers.map((p) => (
+                <tr>
+                    <th scope="row">
+                        <span class="byok__name">{p.name}</span>
+                        <code class="byok__id">--provider {p.id}</code>
+                    </th>
+                    <td>
+                        <code>{p.env}</code>
+                    </td>
+                    <td>
+                        <code class="byok__model">{p.model}</code>
+                        <span class="byok__note">{p.note}</span>
+                    </td>
+                </tr>
+            ))}
+        </tbody>
+    </table>
+    <aside class="byok__side">
+        <p class="byok__stamp">
+            <Stamp label="no key of ours" tone="bad" tilt={-5} />
+        </p>
+        <p>
+            reasonhound ships no model and no key. It reads yours from the environment, only for the
+            provider you chose, and never writes it to disk or to a log. A missing key is reported
+            by the name of its variable — never by its value.
+        </p>
+        <dl class="byok__limits">
+            {limits.map((l) => (
+                <div>
+                    <dt>
+                        <b>{l.value}</b> <span>{l.unit}</span>
+                    </dt>
+                    <dd>{l.what}</dd>
+                </div>
+            ))}
+        </dl>
+    </aside>
+</div>
+
+<style>
+    .byok {
+        display: grid;
+        gap: var(--space-7);
+    }
+    @media (min-width: 64rem) {
+        .byok {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: var(--space-8);
+            align-items: start;
+        }
+    }
+    .byok__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--step--1);
+    }
+    .byok__table thead th {
+        font-family: var(--font-type);
+        font-weight: 400;
+        text-align: left;
+        color: var(--ink-mute);
+        padding: 0 var(--space-3) var(--space-2) 0;
+        border-bottom: 2px solid var(--ink);
+    }
+    .byok__table tbody th,
+    .byok__table td {
+        text-align: left;
+        vertical-align: top;
+        padding: var(--space-3) var(--space-3) var(--space-3) 0;
+        border-bottom: 1px dashed var(--paper-line);
+    }
+    .byok__table code {
+        background: none;
+        padding: 0;
+        white-space: nowrap;
+    }
+    .byok__name {
+        display: block;
+        font-family: var(--font-display);
+        font-size: var(--step-1);
+        font-weight: 500;
+    }
+    .byok__id {
+        color: var(--ink-mute);
+        font-weight: 400;
+    }
+    .byok__model {
+        display: block;
+        color: var(--ember);
+        font-weight: 500;
+    }
+    .byok__note {
+        display: block;
+        color: var(--ink-mute);
+        margin-top: 0.2em;
+    }
+    @media (max-width: 40rem) {
+        .byok__table thead {
+            display: none;
+        }
+        .byok__table tr {
+            display: grid;
+            padding-block: var(--space-3);
+            border-bottom: 1px dashed var(--paper-line);
+        }
+        .byok__table tbody th,
+        .byok__table td {
+            border: 0;
+            padding: 0.15em 0;
+        }
+    }
+    .byok__stamp {
+        margin: 0 0 var(--space-4);
+    }
+    .byok__limits {
+        display: grid;
+        gap: var(--space-3);
+        margin: var(--space-5) 0 0;
+    }
+    .byok__limits > div {
+        display: grid;
+        grid-template-columns: 8rem minmax(0, 1fr);
+        gap: var(--space-3);
+        align-items: baseline;
+        border-top: 1px dashed var(--paper-line);
+        padding-top: var(--space-2);
+    }
+    .byok__limits dt b {
+        font-family: var(--font-display);
+        font-size: var(--step-2);
+        font-weight: 500;
+        color: var(--ember);
+    }
+    .byok__limits dt span {
+        font-family: var(--font-type);
+        font-size: var(--step--1);
+        color: var(--ink-mute);
+    }
+    .byok__limits dd {
+        margin: 0;
+        font-size: var(--step--1);
+        color: var(--ink-soft);
+    }
+</style>

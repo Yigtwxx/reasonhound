@@ -1,0 +1,105 @@
+---
+/* The known limits as a ledger on paper, stamped as open items. */
+import { limits } from '../data/limits';
+import { mark } from '../lib/mark';
+import SketchRule from './sketch/SketchRule.astro';
+import SketchArrow from './sketch/SketchArrow.astro';
+import Stamp from './case/Stamp.astro';
+---
+
+<div class="limits">
+    <ol class="limits__list">
+        {limits.map((l, i) => (
+            <li class="limit">
+                <span class="limit__n" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 class="limit__title">{l.title}</h3>
+                <p class="limit__body" set:html={mark(l.body)} />
+                <div class="limit__rule">
+                    <SketchRule tone="ink" />
+                </div>
+            </li>
+        ))}
+    </ol>
+    <aside class="limits__aside">
+        <Stamp label="open items" tone="dim" tilt={4} />
+        <div class="limits__note">
+            <SketchArrow direction="curve-left" size={52} />
+            <p class="marginalia">
+                Each of these is in the README. A fixed one leaves this list; none is hidden while
+                it stands.
+            </p>
+        </div>
+    </aside>
+</div>
+
+<style>
+    .limits {
+        display: grid;
+        gap: var(--space-6);
+    }
+    @media (min-width: 64rem) {
+        .limits {
+            grid-template-columns: minmax(0, 1fr) var(--margin-col);
+            gap: var(--space-8);
+            align-items: start;
+        }
+    }
+    .limits__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: var(--space-5) var(--space-7);
+    }
+    @media (min-width: 48rem) {
+        .limits__list {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    .limit {
+        position: relative;
+        display: grid;
+        align-content: start;
+        gap: var(--space-2);
+        padding-bottom: var(--space-5);
+    }
+    .limit__n {
+        font-family: var(--font-type);
+        font-size: var(--step-1);
+        line-height: 1;
+        color: var(--ember);
+    }
+    .limit__title {
+        font-size: var(--step-1);
+        line-height: 1.25;
+        margin: 0;
+        max-width: 28ch;
+    }
+    .limit__body {
+        margin: 0;
+        color: var(--ink-soft);
+    }
+    .limit__rule {
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+    }
+    .limits__aside {
+        display: grid;
+        gap: var(--space-5);
+        justify-items: start;
+    }
+    .limits__note {
+        display: flex;
+        gap: var(--space-2);
+        align-items: flex-start;
+    }
+    .limits__note :global(svg) {
+        flex: none;
+    }
+    .limits__note .marginalia {
+        margin: 0;
+    }
+</style>
