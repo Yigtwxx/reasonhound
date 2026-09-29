@@ -11,5 +11,7 @@ export default defineConfig({
     base: '/',
     output: 'static',
     integrations: [sitemap({ filter: (page) => !/\/social\/?$/.test(page) })],
-    build: { inlineStylesheets: 'auto' },
+    // One page, so every stylesheet is inlined: no render-blocking request
+    // stands between the HTML and the first paint.
+    build: { inlineStylesheets: 'always' },
 });

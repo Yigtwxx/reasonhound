@@ -44,11 +44,12 @@
     --tui-blue: #9fb4d0;
 
     /* type */
-    --font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+    --font-display: 'Fraunces Variable', 'Fraunces Fallback', 'Iowan Old Style', Georgia, serif;
     --font-body: 'Inter Variable', system-ui, -apple-system, sans-serif;
     --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
     --font-type: 'Special Elite', 'American Typewriter', 'Courier New', monospace;
-    --font-hand: 'Kalam', 'Bradley Hand', 'Segoe Print', cursive; /* the pinned note only */
+    --font-hand:
+        'Kalam', 'Bradley Hand', 'Segoe Print', cursive; /* hand-written labels on prints and tags */
 
     /* fluid type scale: ratio 1.2 at 360px → 1.25 at 1280px */
     --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);

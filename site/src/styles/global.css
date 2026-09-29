@@ -11,6 +11,18 @@
 @import '@fontsource/kalam/latin-400.css';
 @import '@fontsource/kalam/latin-700.css';
 
+/* Georgia scaled to Fraunces' widths (measured on the display headings), so a
+   heading set in the fallback wraps where Fraunces will: the swap does not
+   reflow the hero and push the copy under it down the page. */
+@font-face {
+    font-family: 'Fraunces Fallback';
+    src: local('Georgia');
+    size-adjust: 84.7%;
+    ascent-override: 115.7%;
+    descent-override: 30.7%;
+    line-gap-override: 0%;
+}
+
 *,
 *::before,
 *::after {
