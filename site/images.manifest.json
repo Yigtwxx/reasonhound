@@ -173,8 +173,8 @@
             }
         },
         {
-            "id": "eustace",
-            "alt": "Two greyhounds and three hounds wait in the undergrowth at their master's feet; a detail from Dürer's Saint Eustace. Engraving.",
+            "id": "eustace-pair",
+            "alt": "Two greyhounds in the undergrowth, one lifting its nose, one walking on; a detail from Dürer's Saint Eustace. Engraving.",
             "title": "Saint Eustace (detail: the hounds)",
             "author": "Albrecht Dürer",
             "year": 1501,
@@ -183,12 +183,50 @@
             "page_url": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer,_Saint_Eustace,_c._1500-1501,_NGA_35100.jpg",
             "source": "National Gallery of Art, Washington",
             "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/Albrecht_D%C3%BCrer%2C_Saint_Eustace%2C_c._1500-1501%2C_NGA_35100.jpg",
-            "tones": ["ember", "paper"],
+            "tones": ["paper"],
             "crop": {
-                "x": 0.0,
-                "y": 0.64,
-                "w": 1.0,
-                "h": 0.33
+                "x": 0.02,
+                "y": 0.635,
+                "w": 0.51,
+                "h": 0.3
+            }
+        },
+        {
+            "id": "eustace-seated",
+            "alt": "A hound sits upright and looks straight out; a detail from Dürer's Saint Eustace. Engraving.",
+            "title": "Saint Eustace (detail: the hounds)",
+            "author": "Albrecht Dürer",
+            "year": 1501,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer,_Saint_Eustace,_c._1500-1501,_NGA_35100.jpg",
+            "source": "National Gallery of Art, Washington",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/Albrecht_D%C3%BCrer%2C_Saint_Eustace%2C_c._1500-1501%2C_NGA_35100.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.595,
+                "y": 0.69,
+                "w": 0.14,
+                "h": 0.25
+            }
+        },
+        {
+            "id": "eustace-glance",
+            "alt": "A hound sits and turns its head to look back; a detail from Dürer's Saint Eustace. Engraving.",
+            "title": "Saint Eustace (detail: the hounds)",
+            "author": "Albrecht Dürer",
+            "year": 1501,
+            "licence": "CC0 1.0",
+            "licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+            "page_url": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer,_Saint_Eustace,_c._1500-1501,_NGA_35100.jpg",
+            "source": "National Gallery of Art, Washington",
+            "source_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/Albrecht_D%C3%BCrer%2C_Saint_Eustace%2C_c._1500-1501%2C_NGA_35100.jpg",
+            "tones": ["paper"],
+            "crop": {
+                "x": 0.705,
+                "y": 0.775,
+                "w": 0.245,
+                "h": 0.205
             }
         },
         {
@@ -284,7 +322,7 @@
                 "w": 0.39,
                 "h": 0.43
             },
-            "tones": ["ember"]
+            "tones": ["ember", "paper"]
         }
     ]
 }

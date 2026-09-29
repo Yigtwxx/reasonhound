@@ -5,7 +5,7 @@
    three tones (ink, mid, paper) laid out on a Bayer 8x8 grid, so the result is
    the same on every machine and every build. Two colourways come out of each
    source — ember-on-paper for the body of the page, paper-on-ember for the
-   hero field — plus a denser variant used for the hover state. The paper tone
+   hero field. The paper tone
    is transparent: the page background shows through, which is what lets the
    same PNG sit on either field.
 
@@ -118,8 +118,8 @@ async function luminance(file, entry, width) {
     return { data, width: info.width, height: info.height, gamma: entry.gamma ?? 1 };
 }
 
-/** Two-level ordered dither into an RGBA buffer. `density` > 1 paints more pixels. */
-function dither({ data, width, height, gamma }, tone, density) {
+/** Two-level ordered dither into an RGBA buffer. */
+function dither({ data, width, height, gamma }, tone) {
     const out = Buffer.alloc(width * height * 4);
     const { paint, rgb } = TONES[tone];
     gamma = gamma * TONES[tone].gamma;
@@ -129,9 +129,8 @@ function dither({ data, width, height, gamma }, tone, density) {
             const i = y * width + x;
             let v = data[i] / 255; // lightness
             if (gamma !== 1) v = Math.pow(v, gamma);
-            // the painted side gets more pixels as density rises
             const coverage = paint === 'dark' ? 1 - v : v;
-            const painted = Math.min(1, coverage * density) > row[x & 7];
+            const painted = coverage > row[x & 7];
             const o = i * 4;
             if (painted) {
                 out[o] = rgb[0];
@@ -164,15 +163,10 @@ async function main() {
         for (const width of WIDTHS) {
             const lum = await luminance(file, entry, width);
             for (const tone of entry.tones ?? ['paper', 'ember']) {
-                for (const [suffix, density] of [
-                    ['', 1],
-                    ['-dense', 1.3],
-                ]) {
-                    const name = `${entry.id}-${width}-${tone}${suffix}.png`;
-                    await writePng(dither(lum, tone, density), path.join(outDir, name));
-                    variants[`${tone}${suffix}`] ??= {};
-                    variants[`${tone}${suffix}`][width] = `images/${name}`;
-                }
+                const name = `${entry.id}-${width}-${tone}.png`;
+                await writePng(dither(lum, tone), path.join(outDir, name));
+                variants[tone] ??= {};
+                variants[tone][width] = `images/${name}`;
             }
             variants.aspect = lum.width / lum.height;
         }
@@ -198,7 +192,7 @@ async function main() {
         `export const imagesHash = '${hash}';`,
         '',
         'export type Tone = "paper" | "ember" | "amber" | "ink";',
-        'export type ImageVariant = `${Tone}` | `${Tone}-dense`;',
+        'export type ImageVariant = Tone;',
         'export interface ImageCredit {',
         '  title: string;',
         '  author: string;',
