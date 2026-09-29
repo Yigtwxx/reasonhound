@@ -1,42 +1,54 @@
 ---
-/* A sheet of ruled paper pinned to the hero field: the short version of what
-   reasonhound is, in the lead's hand, one point a line. One red pushpin, driven
-   in at a slant just right of centre, holds it; the sheet hangs turned a little
-   about the pin, and its bottom edge, furthest from the pin, curls gently off
-   the wall. It stays still: paper and pin, nothing moving.
-
-   The detail is in the material: a fine grain and a little age in the paper, a
-   dent where the pin went in, the sheet's thickness at its edges, and a hand
-   that is a hand: ballpoint ink, lines that drift a degree off the rule, a
-   red-pen underline and one word run over with a highlighter. */
+/* An index card pinned to the hero field: the short version of what
+   reasonhound is, typed up for the case file. Card stock, a red head rule and
+   pale blue lines; the points typed square on the lines, one word struck in the
+   red half of a two-colour ribbon, a filing stamp on the blank line at the foot. One red
+   pushpin holds it, a few degrees off square. It stays still. */
 import { agentCount } from '../../data/agents';
-import SketchUnderline from '../sketch/SketchUnderline.astro';
+import Stamp from './Stamp.astro';
+
+const points = [
+    'reasons, not a checklist',
+    `${agentCount} agents, one lead`,
+    'two votes before a verdict',
+    'your model, your key',
+    'secrets masked before they leave',
+    'findings as Markdown, in your repo',
+    'every probe harmless, and logged',
+];
 ---
 
-<aside class="note" aria-label="reasonhound in short">
-    <div class="note__sheet">
-        <p class="note__no" aria-hidden="true">
-            no. 0142
+<aside class="card" aria-label="reasonhound in short">
+    <div class="card__sheet">
+        <p class="card__head">
+            <span>The short version</span>
+            <span class="card__file" aria-hidden="true">
+                file 0142
+            </span>
         </p>
-        <p class="note__head">
-            <SketchUnderline tone="ember">the short version</SketchUnderline>
-        </p>
-        <ul class="note__lines">
-            <li>
-                <mark class="note__mark">reasons</mark>, not a checklist
-            </li>
-            <li>{agentCount} agents, one lead</li>
-            <li>two votes before a verdict</li>
-            <li>your model, your key</li>
-            <li>secrets masked before they leave</li>
-            <li>findings as Markdown, in your repo</li>
-            <li>every probe harmless, and logged</li>
-        </ul>
-        <p class="note__sign">— the lead</p>
+        <ol class="card__lines">
+            {points.map((p, i) => (
+                <li>
+                    <span class="card__n" aria-hidden="true">
+                        {String(i + 1).padStart(2, '0')}
+                    </span>
+                    {i === 0 ? (
+                        <span>
+                            <span class="card__red">reasons</span>, not a checklist
+                        </span>
+                    ) : (
+                        <span>{p}</span>
+                    )}
+                </li>
+            ))}
+        </ol>
+        <span class="card__stamp" aria-hidden="true">
+            <Stamp label="filed" tone="bad" tilt={-9} size="sm" land={false} />
+        </span>
     </div>
     <!-- A pushpin drawn upright, point at (24, 58), then leant back about the
          point: cap, grip and flange are cylinders with elliptical faces. -->
-    <svg class="note__pin" viewBox="-8 0 56 60" width="56" height="60" aria-hidden="true">
+    <svg class="card__pin" viewBox="-8 0 56 60" width="46" height="49" aria-hidden="true">
         <defs>
             <linearGradient id="pin-red" x1="0" x2="1" y1="0" y2="0">
                 <stop offset="0" stop-color="#9c1a0e"></stop>
@@ -83,194 +95,126 @@ import SketchUnderline from '../sketch/SketchUnderline.astro';
 </aside>
 
 <style>
-    .note {
-        --rule: 1.7rem;
-        /* Where the pin goes in: the sheet's tilt and lift hinge on this point. */
-        --pin-x: 56%;
-        --pin-y: 1.3rem;
-        /* Ruled paper yellowed a little with age: the page's paper, warmed toward amber. */
-        --sheet: color-mix(in srgb, var(--amber) 22%, var(--paper));
-        --shade: color-mix(in srgb, var(--ink) 55%, transparent);
-        /* Blue-black ballpoint: reads as a pen on paper, and sits with the blue rules. */
-        --pen-ink: #26344f;
+    .card {
+        --rule: 1.55rem;
+        --head: 2.6rem;
+        /* Where the pin goes in: the card's tilt hinges on this point. */
+        --pin-x: 50%;
+        --pin-y: 1.05rem;
+        /* Card stock: whiter than the page's paper, a touch warm. */
+        --stock: #fbf7ec;
+        --type-ink: #2a251f;
+        --line: color-mix(in srgb, #7fa3c8 45%, transparent);
         position: relative;
-        width: min(100%, 21rem);
-        transform: rotate(6deg);
+        width: min(100%, 22rem);
+        transform: rotate(3deg);
         transform-origin: var(--pin-x) var(--pin-y);
     }
 
-    /* Shadows behind the sheet: the curled bottom edge stands off the wall, so
-       its shadow falls lower and softer than the close one down the right side. */
-    .note::before,
-    .note::after {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-    }
-    .note::before {
-        left: 0.5rem;
-        right: 0.5rem;
-        bottom: 1.2rem;
-        height: 30%;
-        box-shadow: 0 1.5rem 1.3rem var(--shade);
-    }
-    .note::after {
-        right: 0.3rem;
-        top: 14%;
-        width: 30%;
-        height: 70%;
-        box-shadow: 0.5rem 0.4rem 0.8rem var(--shade);
-        transform: rotate(2deg);
-    }
-
-    .note__sheet {
+    .card__sheet {
         position: relative;
-        z-index: 1;
-        padding: var(--rule) 1.4rem calc(var(--rule) * 0.8) 3.5rem;
-        color: var(--pen-ink);
-        font-family: var(--font-hand);
-        font-size: 1.02rem;
+        /* one blank line at the foot, where the filing stamp lands */
+        padding: 0 1.25rem calc(var(--rule) * 1.9) 1.25rem;
+        color: var(--type-ink);
+        font-family: var(--font-type);
+        font-size: 0.86rem;
         line-height: var(--rule);
-        /* Layers, top first: a fine grain; the dent where the pin went in; the
-           curl along the bottom edge (a shaded band where the paper turns, light
-           caught on the lip); a little age toward the edges; a blank head above
-           the first rule; the red margin line; the blue rules; the paper. */
+        /* Layers, top first: a fine fibre grain; the pin's dent; a faint cooling
+           toward the lower edge, which stands a hair off the wall; the red head
+           rule; the blue lines, starting under the head; the card. */
         background:
-            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0 0.1 0.2 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.28 0 0 0 0 0.18 0.12 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
             radial-gradient(
-                circle 0.85rem at var(--pin-x) var(--pin-y),
-                color-mix(in srgb, var(--ink) 16%, transparent),
-                transparent 75%
+                circle 0.7rem at var(--pin-x) var(--pin-y),
+                color-mix(in srgb, var(--ink) 14%, transparent),
+                transparent 70%
             ),
             linear-gradient(
                 to bottom,
-                transparent calc(100% - 1.5rem),
-                color-mix(in srgb, var(--ink) 10%, transparent) calc(100% - 0.4rem),
-                color-mix(in srgb, #fff 65%, transparent) 100%
+                transparent 70%,
+                color-mix(in srgb, var(--ink) 4%, transparent)
             ),
-            radial-gradient(
-                ellipse 85% 80% at 45% 40%,
-                transparent 60%,
-                color-mix(in srgb, var(--amber-deep) 10%, transparent) 100%
-            ),
-            linear-gradient(to bottom, var(--sheet) 0 var(--rule), transparent var(--rule)),
             linear-gradient(
-                to right,
-                transparent 2.3rem,
-                color-mix(in srgb, var(--ember) 55%, transparent) 2.3rem calc(2.3rem + 1px),
-                transparent calc(2.3rem + 1px)
+                to bottom,
+                transparent calc(var(--head) - 2px),
+                color-mix(in srgb, var(--ember) 70%, transparent) calc(var(--head) - 2px)
+                    var(--head),
+                transparent var(--head)
             ),
             repeating-linear-gradient(
-                to bottom,
-                transparent 0 calc(var(--rule) - 1px),
-                var(--slate-soft) calc(var(--rule) - 1px) var(--rule)
-            ),
-            var(--sheet);
-        /* The bottom edge bows a little where it curls; the top lies flat. */
-        border-radius: 2px 2px 50% 50% / 2px 2px 0.7rem 0.9rem;
-        /* The sheet's own thickness along the right and bottom edges, then a
-           tight contact shadow where it meets the wall. */
+                    to bottom,
+                    transparent 0 calc(var(--rule) - 1px),
+                    var(--line) calc(var(--rule) - 1px) var(--rule)
+                )
+                0 var(--head) / 100% calc(100% - var(--head) - var(--rule) * 0.5) no-repeat,
+            var(--stock);
+        border-radius: 2px;
+        /* Close to the wall at the pin, lifting a little toward the foot: a tight
+           contact shadow, then a longer one that grows toward the bottom corners. */
         box-shadow:
-            1px 1px 0 color-mix(in srgb, var(--amber-deep) 28%, transparent),
-            0 2px 3px color-mix(in srgb, var(--ink) 30%, transparent);
-        /* The curl lifts the bottom toward the reader, hinged at the pin. */
-        transform: perspective(800px) rotateX(9deg);
-        transform-origin: var(--pin-x) var(--pin-y);
+            0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent),
+            0 1px 1px color-mix(in srgb, var(--ink) 18%, transparent),
+            0 0.5rem 0.8rem -0.2rem color-mix(in srgb, var(--ink) 28%, transparent),
+            0 1.4rem 1.6rem -0.9rem color-mix(in srgb, var(--ink) 42%, transparent);
     }
 
-    /* Handwriting sits on the rule, not between two: the text drops a touch
-       inside each ruled line box. */
-    .note__head,
-    .note__lines,
-    .note__sign {
-        position: relative;
-        top: 0.22rem;
+    /* A typewriter's impression: the ribbon inks a letter a shade unevenly. */
+    .card__head,
+    .card__lines {
+        text-shadow: 0 0 0.4px color-mix(in srgb, var(--type-ink) 40%, transparent);
     }
-    .note__head {
+    .card__head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        height: var(--head);
         margin: 0;
-        font-weight: 700;
+        padding-bottom: 0.3rem;
+        font-size: 0.78rem;
+        line-height: 1;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+    .card__file {
         color: var(--ember);
+        letter-spacing: 0.1em;
     }
-    /* The case number, jotted small in the corner above the first rule. */
-    .note__no {
-        position: absolute;
-        top: calc(var(--rule) * 0.18);
-        right: 1.1rem;
-        margin: 0;
-        font-size: 0.82rem;
-        color: var(--ember);
-        rotate: -4deg;
-    }
-    /* One word run over with a highlighter: a slightly uneven stroke that sits
-       low on the letters and lets the ink show through. */
-    .note__mark {
-        color: inherit;
-        padding-inline: 0.15em;
-        margin-inline: -0.15em;
-        background: linear-gradient(
-                100deg,
-                transparent 0 3%,
-                color-mix(in srgb, var(--amber) 55%, transparent) 6% 92%,
-                transparent 97%
-            )
-            0 70% / 100% 62% no-repeat;
-        mix-blend-mode: multiply;
-    }
-    .note__lines {
+    .card__lines {
         list-style: none;
         margin: 0;
         padding: 0;
     }
-    /* A hand-drawn dash hangs in the margin, so every point starts at the rule. */
-    .note__lines li {
+    .card__lines li {
+        display: grid;
+        grid-template-columns: 1.7rem minmax(0, 1fr);
+        align-items: baseline;
+        /* Typed on the line, not between two. */
         position: relative;
+        top: 0.18rem;
     }
-    /* A hand does not keep to the rule: each line drifts a degree or a hair. */
-    .note__lines li:nth-child(2) {
-        rotate: -0.6deg;
-        translate: 1px 0;
-    }
-    .note__lines li:nth-child(3) {
-        rotate: 0.4deg;
-    }
-    .note__lines li:nth-child(4) {
-        rotate: -0.3deg;
-        translate: 2px 0;
-    }
-    .note__lines li:nth-child(5) {
-        rotate: 0.5deg;
-        translate: -1px 0;
-    }
-    .note__lines li:nth-child(6) {
-        rotate: -0.5deg;
-    }
-    .note__lines li:nth-child(7) {
-        rotate: 0.3deg;
-        translate: 1px 0;
-    }
-    .note__lines li::before {
-        content: '–';
-        position: absolute;
-        left: -1rem;
+    .card__n {
         color: var(--ember);
-        font-weight: 700;
+        font-size: 0.78rem;
     }
-    .note__sign {
-        margin: 0;
-        text-align: right;
-        color: color-mix(in srgb, var(--pen-ink) 85%, var(--sheet));
-        rotate: -2deg;
+    /* The red half of a two-colour ribbon. */
+    .card__red {
+        color: var(--ember);
+    }
+    .card__stamp {
+        position: absolute;
+        right: 1.1rem;
+        bottom: 0.7rem;
+        opacity: 0.85;
     }
 
     /* The pin's point lands on (--pin-x, --pin-y); its head leans back and up,
-       and its shadow falls to the right across the paper. */
-    .note__pin {
+       and its shadow falls to the right across the card. */
+    .card__pin {
         position: absolute;
         z-index: 2;
-        left: calc(var(--pin-x) - 32px);
-        top: calc(var(--pin-y) - 58px);
-        transform-origin: 32px 58px;
+        left: calc(var(--pin-x) - 26.3px);
+        top: calc(var(--pin-y) - 47.6px);
         overflow: visible;
-        filter: drop-shadow(5px 4px 2.5px var(--shade));
+        filter: drop-shadow(4px 3px 2px color-mix(in srgb, var(--ink) 50%, transparent));
     }
 </style>

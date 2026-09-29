@@ -8,12 +8,7 @@ import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full
 import interUrl from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import monoUrl from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
 import typeUrl from '@fontsource/special-elite/files/special-elite-latin-400-normal.woff2?url';
-import handUrl from '@fontsource/kalam/files/kalam-latin-400-normal.woff2?url';
-import handBoldUrl from '@fontsource/kalam/files/kalam-latin-700-normal.woff2?url';
 const preload = [frauncesUrl, interUrl, monoUrl, typeUrl];
-// The pinned note's hand shows only beside the hero on a wide screen; preloaded
-// there so its late swap does not shift the hero's side column.
-const preloadWide = [handUrl, handBoldUrl];
 // Browsers cache favicons apart from the page, so a hard reload does not refetch
 // them; bump this when the icon files change.
 const iconVersion = 4;
@@ -62,16 +57,6 @@ const IMAGE_ALT =
         {hidden ? <meta name="robots" content="noindex, nofollow" /> : null}
         {preload.map((href) => (
             <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />
-        ))}
-        {preloadWide.map((href) => (
-            <link
-                rel="preload"
-                as="font"
-                type="font/woff2"
-                href={href}
-                media="(min-width: 64rem)"
-                crossorigin
-            />
         ))}
         <link rel="icon" href={icon('favicon.svg')} type="image/svg+xml" />
         <link rel="icon" href={icon('favicon-32.png')} sizes="32x32" type="image/png" />
