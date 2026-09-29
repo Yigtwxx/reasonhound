@@ -11,7 +11,8 @@ export default defineConfig({
     base: '/',
     output: 'static',
     integrations: [sitemap({ filter: (page) => !/\/social\/?$/.test(page) })],
-    // One page, so every stylesheet is inlined: no render-blocking request
-    // stands between the HTML and the first paint.
-    build: { inlineStylesheets: 'always' },
+    // 'auto', not 'always': inlining both sheets tripled the HTML and cost the
+    // phone ~0.4 s of first paint (Lighthouse on production), more than the two
+    // cached, parallel stylesheet requests.
+    build: { inlineStylesheets: 'auto' },
 });
