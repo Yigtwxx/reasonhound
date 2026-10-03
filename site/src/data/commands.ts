@@ -68,4 +68,9 @@ export const siblings: readonly { name: string; href: string; tag: string }[] = 
         href: 'https://proofpath-yigtwx.vercel.app',
         tag: 'checks that a citation says what the claim says',
     },
+    {
+        name: 'spiyweb',
+        href: 'https://spiyweb.vercel.app',
+        tag: 'retrieval that spreads through a graph, not top-k',
+    },
 ];
