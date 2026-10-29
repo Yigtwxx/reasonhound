@@ -73,4 +73,9 @@ export const siblings: readonly { name: string; href: string; tag: string }[] = 
         href: 'https://spiyweb.vercel.app',
         tag: 'retrieval that spreads through a graph, not top-k',
     },
+    {
+        name: 'sepia',
+        href: 'https://sepia-cli.vercel.app',
+        tag: 'describe a picture and watch it appear in coloured text',
+    },
 ];
